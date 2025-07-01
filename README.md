@@ -1,85 +1,64 @@
-# Advanced Download Manager
+# رفیق جدید دانلودهات: Advanced Download Manager 🚀
 
-This is a multi-threaded download manager application built using Python's `tkinter` for the graphical user interface and `requests` for handling downloads. It features a modern, minimalist design with a customizable color theme and advanced download controls.
+سلام! به پروژه کوچک اما کاربردی "Advanced Download Manager" خوش آمدید. این فقط یه ابزار ساده برای دانلود نیست، بلکه تلاشی برای ساختن یه دستیار هوشمند و خوش‌تیپه که بتونه کار دانلود فایل‌هاتون رو حسابی راحت کنه. خودم با `tkinter` برای رابط کاربری گرافیکی و `requests` برای بخش دانلودها ساختمش. امیدوارم که ازش لذت ببرید!
 
-## Features
+## چه کارایی از دستش برمیاد؟ (قابلیت‌ها) ✨
 
--   **Multi-threaded Downloads:** Efficiently download multiple files concurrently.
--   **Customizable Filenames:**
-    -   **Batch Naming:** Set a base name for all files, and the application will automatically append sequential numbers (e.g., `My_File_001.ext`).
-    -   **Individual Naming:** Manually set a unique filename for each URL.
-    -   **Smart Extension Detection:** Automatically suggests file extensions (like `.mp4`, `.srt`, `.pdf`) based on URL patterns and content type headers.
--   **Download Controls:**
-    -   Start, Pause, and Resume downloads.
-    -   Stop all active and queued downloads.
-    -   Clear all content to prepare for new downloads.
--   **Dynamic Progress Display:**
-    -   Shows download progress percentage and real-time speed for files with known total sizes.
-    -   For files with unknown total sizes, it displays `N/A` for percentage, the current downloaded amount, and the live download speed.
-    -   Updates status (Downloading, Paused, Completed, Error).
--   **Modern User Interface (UI):**
-    -   Clean, minimalist design with a dark blue and vibrant accent color scheme (based on Oklch values).
-    -   Consistently styled buttons with "Berlin Sans Demi" (or a fallback) font and white text.
-    -   Sleek custom scrollbars.
-    -   Compact spacing for efficient use of screen space.
--   **Intuitive Exit Behavior:**
-    -   An "Exit" button with dynamic hover effects: turns **red** if downloads are active, and **yellow** if downloads are queued.
-    -   Clicking the "Exit" button prompts for confirmation based on download status (active downloads or pending queue) before stopping and exiting.
+* **دانلودهای پرسرعت و موازی:** دیگه لازم نیست تک‌تک دانلود کنید! این برنامه چندتا فایل رو همزمان و با سرعت خوب براتون میاره.
+* **اسم فایل‌ها دست خودته!**
+    * **اسم‌گذاری دسته‌ای:** یه اسم پایه بهش بده (مثلاً `فیلم_مورد_علاقه`) و خودش به ترتیب برات شماره‌گذاری می‌کنه (`فیلم_مورد_علاقه_001.mp4`). خیلی تمیز و مرتب!
+    * **اسم‌گذاری تک‌به‌تک:** اگه دلت خواست، می‌تونی برای هر لینک، یه اسم دلخواه و کاملاً شخصی بذاری.
+    * **پسوند فایل؟ خودش تشخیص میده!** دیگه نگران پسوندهای عجیب‌غریب مثل `.bin` نباش. برنامه خودش باهوشه و سعی می‌کنه پسوند درست رو (مثل `.mp4`, `.srt`, `.pdf`) از آدرس یا نوع فایل تشخیص بده.
+* **کنترل کامل روی دانلودها:**
+    * **شروع، مکث، و ادامه:** هر وقت خواستی دانلود رو نگه دار یا دوباره شروع کن.
+    * **توقف همه:** می‌تونی همه دانلودهای در حال انجام یا توی صف رو یه دفعه متوقف کنی.
+    * **آماده برای دانلودهای جدید:** یه دکمه جادویی "Another" هست که همه چیز رو پاک می‌کنه و برنامه رو برای یه لیست دانلود کاملاً جدید آماده می‌کنه.
+* **پیشرفت دانلود رو زنده ببین!**
+    * درصد پیشرفت و سرعت لحظه‌ای دانلود رو برات نشون میده.
+    * حتی اگه حجم کلی فایل معلوم نباشه، بازم نشون میده چقدر دانلود شده و با چه سرعتی داره پیش میره (مثلاً `50MB / Unknown`).
+    * وضعیت فایل‌ها رو همیشه به‌روز می‌بینی: "در حال دانلود"، "متوقف شده"، "تکمیل شد" یا "خطا".
+* **رابط کاربری مدرن و چشم‌نواز:**
+    * یه طراحی تمیز و مینیمالیست با رنگ‌های تیره و جذاب (مخصوصا آبی‌های عمیق) که خودم با دقت انتخاب کردم.
+    * دکمه‌ها همه یه شکل و یه اندازه هستن، با همون فونت Berlin Sans Demi (یا یه فونت شیک دیگه اگه اون نباشه) و متن سفید که چشم‌نواز باشه.
+    * حتی غلطک‌های اسکرول‌بار رو هم خوشگل کردم تا ظاهر برنامه‌ات حرفه‌ای باشه.
+* **خروج هوشمند از برنامه:**
+    * دکمه "Exit" گوشه پایین سمت راست هست. وقتی موس رو روش ببری، اگه در حال دانلود باشی **قرمز** میشه که یعنی حواست باشه! اگه تو صف دانلود باشی، **زرد** میشه.
+    * اگه روش کلیک کنی و دانلود فعالی داشته باشی، بهت اخطار میده و مطمئن میشه که واقعاً می‌خوای همه چیز رو متوقف کنی و خارج بشی. اگه فقط تو صف باشن، میپرسه که می‌خوای صف رو پاک کنی یا نه. اگه هیچ دانلود و صفی نباشه، راحت خارج میشه.
 
-## Color Palette Used (Oklch to Hex)
+## چجوری راهش بندازی؟ (نصب و استفاده) 🛠️
 
-The UI adheres strictly to the following Oklch-derived color palette:
-
--   **Main Text Color:** `oklch(0.97 0.014 254.604)` -> `#F7F8FF` (Very light blue-white)
--   **Main Background & Borders:** `oklch(0.208 0.042 265.755)` -> `#162B4A` (Deep dark blue)
--   **Accent & Button Background:** `oklch(0.424 0.199 265.638)` -> `#006EE5` (Vibrant medium blue)
--   **Input Fields & Table Background:** `#D7E5FF` (A very light blue for readability)
-
-## Installation
-
-1.  **Prerequisites:**
-    -   Python 3.x installed on your system.
-    -   `requests` library for HTTP requests.
-
-2.  **Install `requests`:**
-    Open your terminal or command prompt and run:
+1.  **چیا لازمه؟**
+    * پایتون 3 (معمولاً روی اکثر سیستم‌ها هست).
+    * کتابخونه `requests` برای دانلودها.
+2.  **`requests` رو نصب کن:**
+    ترمینال یا Command Prompt رو باز کن و این دستور رو بزن:
     ```bash
     pip install requests
     ```
-
-3.  **Download the script:**
-    Save the provided Python code into a file named `main_downloader.py` (or any other `.py` extension).
-
-## Usage
-
-1.  **Run the application:**
-    Open your terminal or command prompt, navigate to the directory where you saved `main_downloader.py`, and run:
+3.  **فایل برنامه رو دانلود کن:**
+    کدی که در اختیارت قرار گرفته رو توی یه فایل با اسم `main_downloader.py` (یا هر اسم دیگه‌ای که دوست داری با پسوند `.py`) ذخیره کن.
+4.  **برنامه رو اجرا کن:**
+    دوباره توی ترمینال یا Command Prompt، برو به همون پوشه‌ای که فایل رو ذخیره کردی و این دستور رو بزن:
     ```bash
     python main_downloader.py
     ```
 
-2.  **Set Save Path:**
-    -   Click the "Browse" button next to the "Save to:" field to choose the directory where downloaded files will be saved.
+## نحوه استفاده (یه راهنمای کوچیک) 🚦
 
-3.  **Add URLs:**
-    -   Paste one or more download links into the "Enter URLs (one per line):" text area.
-    -   Click "Add URLs" to add them to the download list.
+1.  **مسیر ذخیره رو تعیین کن:** روی دکمه "Browse" کنار فیلد "Save to:" کلیک کن و پوشه‌ای که می‌خوای فایل‌هات اونجا ذخیره بشن رو انتخاب کن.
+2.  **لینک‌هات رو اضافه کن:** لینک‌های دانلودت رو (هر لینک توی یه خط) توی کادر بزرگ "Enter URLs (one per line):" بچسبون. بعدش روی "Add URLs" کلیک کن.
+3.  **اگه خواستی، اسم فایل‌هات رو تنظیم کن:**
+    * "Set Names": می‌تونی انتخاب کنی که اسم‌گذاری به صورت دسته‌ای (Batch Naming) باشه یا تک‌به‌تک (Individual Names). برنامه خودش تو رو راهنمایی می‌کنه.
+    * "Reset Names": اگه از اسم‌گذاری‌هات پشیمون شدی، با این دکمه می‌تونی همه رو به حالت اولیه (اسمی که از لینک گرفته میشه) برگردونی.
+4.  **کنترل دانلود:**
+    * "Start All": بزن تا همه دانلودها شروع بشن.
+    * "Pause / Resume": برای مکث یا ادامه دانلودها.
+    * "Stop All": همه دانلودها و صف رو متوقف می‌کنه.
+    * "Another": برنامه رو برای شروع یه سری دانلود کاملاً جدید آماده می‌کنه.
+5.  **خروج از برنامه:**
+    * دکمه "Exit" پایین سمت راست رو کلیک کن. اگه دانلود یا صفی در کار باشه، هوشمندانه ازت تأییدیه می‌گیره تا مطمئن بشه قبل از خروج، تکلیف اونا رو مشخص کردی!
 
-4.  **Manage Filenames (Optional):**
-    -   **Set Names:** Click "Set Names" to choose between "Batch Naming" (e.g., `My_Video_001.mp4`, `My_Video_002.mp4`) or "Individual Names" (manually assign each filename).
-    -   **Reset Names:** Click "Reset Names" to revert all custom/batch filenames to their default (derived from the URL).
+## خالق این رفیق ✨
 
-5.  **Control Downloads:**
-    -   **Start All:** Begins downloading all URLs in the list.
-    -   **Pause / Resume:** Toggles between pausing and resuming active downloads.
-    -   **Stop All:** Stops all active downloads and clears the queue.
-    -   **Another:** Clears all current download information (active, queued, completed, failed) and resets the application, preparing it for a new set of downloads.
-
-6.  **Exit the Application:**
-    -   Click the "Exit" button in the bottom right corner.
-    -   The button's color will dynamically change on hover (red for active downloads, yellow for queued downloads) to indicate urgency.
-    -   Depending on the download status, it will prompt for confirmation before stopping downloads (if any) and exiting.
-
-## Author
-
--   Created by Nima-Ghaffari
+-   created by Nima-Ghaffari
+-   اگه سوالی داشتی یا دوست داشتی در ارتباط باشی، می‌تونی از طریق تلگرام با من در تماس باشی: [t.me/nimaghaffari001](https://t.me/nimaghaffari001)
