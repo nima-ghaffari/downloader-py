@@ -82,6 +82,6 @@ This section provides a brief overview of key technical aspects contributing to 
 
 **Created by Nima-Ghaffari**
 
-[[@nimaghaffari001](https://t.me/nimaghaffari001) ![](https://img.shields.io/badge/Telegram-2CA5E0?style=for-the-badge&logo=telegram&logoColor=white)]
+[![portfolio](https://img.shields.io/badge/Telegram-2CA5E0?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/nimaghaffari001)
 
 ---
