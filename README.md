@@ -1,64 +1,51 @@
-# رفیق جدید دانلودهات: Advanced Download Manager 🚀
+# Advanced Download Manager
 
-سلام! به پروژه کوچک اما کاربردی "Advanced Download Manager" خوش آمدید. این فقط یه ابزار ساده برای دانلود نیست، بلکه تلاشی برای ساختن یه دستیار هوشمند و خوش‌تیپه که بتونه کار دانلود فایل‌هاتون رو حسابی راحت کنه. خودم با `tkinter` برای رابط کاربری گرافیکی و `requests` برای بخش دانلودها ساختمش. امیدوارم که ازش لذت ببرید!
+This project introduces an Advanced Download Manager, a robust application designed to streamline your file downloading experience. Developed using Python's `tkinter` for the graphical user interface and `requests` for handling robust HTTP operations, this manager aims to offer both functionality and a pleasant user experience.
 
-## چه کارایی از دستش برمیاد؟ (قابلیت‌ها) ✨
+## Core Capabilities
 
-* **دانلودهای پرسرعت و موازی:** دیگه لازم نیست تک‌تک دانلود کنید! این برنامه چندتا فایل رو همزمان و با سرعت خوب براتون میاره.
-* **اسم فایل‌ها دست خودته!**
-    * **اسم‌گذاری دسته‌ای:** یه اسم پایه بهش بده (مثلاً `فیلم_مورد_علاقه`) و خودش به ترتیب برات شماره‌گذاری می‌کنه (`فیلم_مورد_علاقه_001.mp4`). خیلی تمیز و مرتب!
-    * **اسم‌گذاری تک‌به‌تک:** اگه دلت خواست، می‌تونی برای هر لینک، یه اسم دلخواه و کاملاً شخصی بذاری.
-    * **پسوند فایل؟ خودش تشخیص میده!** دیگه نگران پسوندهای عجیب‌غریب مثل `.bin` نباش. برنامه خودش باهوشه و سعی می‌کنه پسوند درست رو (مثل `.mp4`, `.srt`, `.pdf`) از آدرس یا نوع فایل تشخیص بده.
-* **کنترل کامل روی دانلودها:**
-    * **شروع، مکث، و ادامه:** هر وقت خواستی دانلود رو نگه دار یا دوباره شروع کن.
-    * **توقف همه:** می‌تونی همه دانلودهای در حال انجام یا توی صف رو یه دفعه متوقف کنی.
-    * **آماده برای دانلودهای جدید:** یه دکمه جادویی "Another" هست که همه چیز رو پاک می‌کنه و برنامه رو برای یه لیست دانلود کاملاً جدید آماده می‌کنه.
-* **پیشرفت دانلود رو زنده ببین!**
-    * درصد پیشرفت و سرعت لحظه‌ای دانلود رو برات نشون میده.
-    * حتی اگه حجم کلی فایل معلوم نباشه، بازم نشون میده چقدر دانلود شده و با چه سرعتی داره پیش میره (مثلاً `50MB / Unknown`).
-    * وضعیت فایل‌ها رو همیشه به‌روز می‌بینی: "در حال دانلود"، "متوقف شده"، "تکمیل شد" یا "خطا".
-* **رابط کاربری مدرن و چشم‌نواز:**
-    * یه طراحی تمیز و مینیمالیست با رنگ‌های تیره و جذاب (مخصوصا آبی‌های عمیق) که خودم با دقت انتخاب کردم.
-    * دکمه‌ها همه یه شکل و یه اندازه هستن، با همون فونت Berlin Sans Demi (یا یه فونت شیک دیگه اگه اون نباشه) و متن سفید که چشم‌نواز باشه.
-    * حتی غلطک‌های اسکرول‌بار رو هم خوشگل کردم تا ظاهر برنامه‌ات حرفه‌ای باشه.
-* **خروج هوشمند از برنامه:**
-    * دکمه "Exit" گوشه پایین سمت راست هست. وقتی موس رو روش ببری، اگه در حال دانلود باشی **قرمز** میشه که یعنی حواست باشه! اگه تو صف دانلود باشی، **زرد** میشه.
-    * اگه روش کلیک کنی و دانلود فعالی داشته باشی، بهت اخطار میده و مطمئن میشه که واقعاً می‌خوای همه چیز رو متوقف کنی و خارج بشی. اگه فقط تو صف باشن، میپرسه که می‌خوای صف رو پاک کنی یا نه. اگه هیچ دانلود و صفی نباشه، راحت خارج میشه.
+* **Multi-threaded Efficiency:** The application leverages multi-threading to facilitate concurrent downloads, significantly enhancing download speed and efficiency.
+* **Flexible Filename Management:**
+    * **Batch Naming:** Users can define a base name, and the system will automatically append sequential numbering (e.g., `My_Project_001.zip`, `My_Project_002.zip`), ensuring organized file management.
+    * **Individual Naming:** The option to assign unique, custom filenames for each URL provides granular control over downloaded content.
+    * **Intelligent Extension Detection:** The manager intelligently attempts to determine the correct file extension (e.g., `.mp4`, `.srt`, `.pdf`) by analyzing URL patterns and HTTP content-type headers, minimizing the occurrence of generic `.bin` extensions.
+* **Comprehensive Download Controls:**
+    * Initiate, pause, and resume ongoing downloads with ease.
+    * A "Stop All" function allows for the immediate cessation of all active and queued downloads.
+    * The "Another" feature provides a clean slate, clearing all current download information and resetting the application for new tasks.
+* **Dynamic Progress Visualization:**
+    * The user interface provides real-time updates on download progress, including percentage completion and live download speed for files where the total size is known.
+    * For files with indeterminate total sizes (e.g., streaming content), the system dynamically displays `N/A` for percentage, alongside the accumulated downloaded amount and live speed, offering continuous feedback.
+    * Clear status indicators (Downloading, Paused, Completed, Error) ensure users are always informed.
+* **Modern and Intuitive User Interface:**
+    * The application boasts a clean, minimalist design complemented by a sophisticated dark blue and vibrant accent color scheme, meticulously crafted from Oklch values.
+    * Buttons are consistently styled with a uniform size and utilize the "Berlin Sans Demi" font (with a suitable fallback) and crisp white text.
+    * Custom-designed scrollbars enhance visual appeal while maintaining functionality.
+    * Optimized spacing contributes to a clutter-free and user-friendly layout.
+* **Intelligent Exit Mechanism:**
+    * The dedicated "Exit" button features dynamic visual cues: it glows **red** upon hover if downloads are active, and **yellow** if downloads are merely queued, signaling the potential impact of exiting.
+    * When clicked, the application intelligently prompts the user for confirmation, offering tailored options to stop ongoing downloads or clear pending queues before gracefully terminating.
 
-## چجوری راهش بندازی؟ (نصب و استفاده) 🛠️
+## Getting Started
 
-1.  **چیا لازمه؟**
-    * پایتون 3 (معمولاً روی اکثر سیستم‌ها هست).
-    * کتابخونه `requests` برای دانلودها.
-2.  **`requests` رو نصب کن:**
-    ترمینال یا Command Prompt رو باز کن و این دستور رو بزن:
+### Prerequisites
+
+* Python 3.x installed on your system.
+* The `requests` library for handling HTTP requests.
+
+### Installation Steps
+
+1.  **Install `requests`:**
+    Open your terminal or command prompt and execute the following command:
     ```bash
     pip install requests
     ```
-3.  **فایل برنامه رو دانلود کن:**
-    کدی که در اختیارت قرار گرفته رو توی یه فایل با اسم `main_downloader.py` (یا هر اسم دیگه‌ای که دوست داری با پسوند `.py`) ذخیره کن.
-4.  **برنامه رو اجرا کن:**
-    دوباره توی ترمینال یا Command Prompt، برو به همون پوشه‌ای که فایل رو ذخیره کردی و این دستور رو بزن:
-    ```bash
-    python main_downloader.py
-    ```
+2.  **Acquire the Script:**
+    Save the provided Python code into a file named `main_downloader.py` (or any other name ending with `.py`).
 
-## نحوه استفاده (یه راهنمای کوچیک) 🚦
+### How to Run
 
-1.  **مسیر ذخیره رو تعیین کن:** روی دکمه "Browse" کنار فیلد "Save to:" کلیک کن و پوشه‌ای که می‌خوای فایل‌هات اونجا ذخیره بشن رو انتخاب کن.
-2.  **لینک‌هات رو اضافه کن:** لینک‌های دانلودت رو (هر لینک توی یه خط) توی کادر بزرگ "Enter URLs (one per line):" بچسبون. بعدش روی "Add URLs" کلیک کن.
-3.  **اگه خواستی، اسم فایل‌هات رو تنظیم کن:**
-    * "Set Names": می‌تونی انتخاب کنی که اسم‌گذاری به صورت دسته‌ای (Batch Naming) باشه یا تک‌به‌تک (Individual Names). برنامه خودش تو رو راهنمایی می‌کنه.
-    * "Reset Names": اگه از اسم‌گذاری‌هات پشیمون شدی، با این دکمه می‌تونی همه رو به حالت اولیه (اسمی که از لینک گرفته میشه) برگردونی.
-4.  **کنترل دانلود:**
-    * "Start All": بزن تا همه دانلودها شروع بشن.
-    * "Pause / Resume": برای مکث یا ادامه دانلودها.
-    * "Stop All": همه دانلودها و صف رو متوقف می‌کنه.
-    * "Another": برنامه رو برای شروع یه سری دانلود کاملاً جدید آماده می‌کنه.
-5.  **خروج از برنامه:**
-    * دکمه "Exit" پایین سمت راست رو کلیک کن. اگه دانلود یا صفی در کار باشه، هوشمندانه ازت تأییدیه می‌گیره تا مطمئن بشه قبل از خروج، تکلیف اونا رو مشخص کردی!
+Navigate to the directory containing `main_downloader.py` in your terminal or command prompt, and run:
 
-## خالق این رفیق ✨
-
--   created by Nima-Ghaffari
--   اگه سوالی داشتی یا دوست داشتی در ارتباط باشی، می‌تونی از طریق تلگرام با من در تماس باشی: [t.me/nimaghaffari001](https://t.me/nimaghaffari001)
+```bash
+python main_downloader.py
