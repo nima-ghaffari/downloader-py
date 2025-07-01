@@ -9,10 +9,13 @@ from tkinter import ttk, filedialog, messagebox, scrolledtext
 from threading import Thread
 from queue import Queue
 from tkinter.font import Font
+import subprocess
 
 class CustomTheme:
+    """Applies a custom visual theme to Tkinter widgets."""
     @staticmethod
     def apply(root, fonts):
+        # Define color palette
         text_color = '#F7F8FF'
         bg_color = '#162B4A'
         accent_color = '#006EE5'
@@ -31,20 +34,25 @@ class CustomTheme:
         disabled_color_fg = '#BDC3C7'
         hover_color = '#004CAF'
 
+        # Apply ttk.Style
         style = ttk.Style()
         
+        # Try to use 'clam' theme, fallback to 'default'
         if 'clam' in style.theme_names():
             style.theme_use('clam')
         else:
             style.theme_use('default')
 
+        # Configure default font for all ttk widgets
         style.configure('.', font=fonts['default'])  
 
+        # Configure root window background
         root.configure(bg=bg_color)
 
         style.configure('TFrame', background=bg_color)
         style.configure('TLabel', background=bg_color, foreground=text_color)
         
+        # Configure TCheckbutton
         style.configure('TCheckbutton', 
                         font=fonts['default'], 
                         background=bg_color, 
@@ -55,18 +63,21 @@ class CustomTheme:
                   background=[('active', bg_color)], 
                   foreground=[('disabled', disabled_color_fg)])
         
+        # Configure TEntry for error/success states
         style.configure('TEntry.Error', fieldbackground='#FF6347', foreground='white')  
         style.configure('TEntry.Success', fieldbackground='#8BC34A', foreground='white')  
         
+        # Configure TLabelFrame (for grouping widgets)
         style.configure('TLabelFrame', 
                         background=accent_color, 
                         foreground=text_color,  
                         bordercolor=border_color, 
-                        relief='solid',     
+                        relief='solid',    
                         borderwidth=1,
                         font=fonts['heading'])  
         style.map('TLabelFrame', background=[('active', accent_color)])  
         
+        # Configure TButton
         style.configure('TButton', 
                         background=accent_color,
                         foreground=button_text_color, 
@@ -79,6 +90,7 @@ class CustomTheme:
                   background=[('active', hover_color), ('disabled', disabled_color_bg)],   
                   foreground=[('disabled', disabled_color_fg)])   
 
+        # Configure TEntry
         style.configure('TEntry',
                         fieldbackground=entry_field_bg,   
                         foreground=entry_text_color,     
@@ -90,6 +102,7 @@ class CustomTheme:
                         borderwidth=1,   
                         padding=5)
         
+        # Configure ScrolledText (tk widget, so options are set directly on root)
         root.option_add('*Scrolledtext*background', entry_field_bg)
         root.option_add('*Scrolledtext*foreground', entry_text_color)
         root.option_add('*Scrolledtext*insertBackground', entry_text_color)
@@ -97,9 +110,10 @@ class CustomTheme:
         root.option_add('*Scrolledtext*selectForeground', selected_item_text)
         root.option_add('*Scrolledtext*borderwidth', 1)
         root.option_add('*Scrolledtext*relief', 'solid')
-        root.option_add('*Scrolledtext*highlightbackground', border_color)  
+        root.option_add('*Scrolledtext*highlightbackground', border_color)   
         root.option_add('*Scrolledtext*highlightcolor', accent_color)   
 
+        # Configure Treeview
         style.configure('Treeview',
                         background=entry_field_bg,   
                         foreground=entry_text_color,   
@@ -112,6 +126,7 @@ class CustomTheme:
                   background=[('selected', selected_item_bg)],   
                   foreground=[('selected', selected_item_text)])   
 
+        # Configure Treeview Heading
         style.configure('Treeview.Heading',
                         background=accent_color,   
                         foreground=text_color,     
@@ -121,6 +136,7 @@ class CustomTheme:
         style.map('Treeview.Heading',
                   background=[('active', hover_color)])   
 
+        # Configure Status Label
         style.configure('TStatus.TLabel',   
                         background=bg_color,   
                         foreground=text_color,   
@@ -128,12 +144,14 @@ class CustomTheme:
                         padding=[5,2],   
                         anchor='w')   
 
+        # Configure Downloads Heading Label
         style.configure('DownloadsHeading.TLabel',
                         background=bg_color,   
                         foreground=text_color,   
                         font=fonts['heading'],   
                         padding=(0, 5, 0, 2))   
 
+        # Configure Scrollbar
         style.configure("TScrollbar",
                         troughcolor=bg_color,   
                         background=accent_color,   
@@ -157,19 +175,19 @@ class CustomTheme:
         root.option_add('*Button*foreground', button_text_color) 
         style.configure('Dialog.TButton', background=accent_color, foreground=button_text_color) 
 
-# Custom Dialog for filename input to allow styling
 class CustomFilenameDialog(tk.Toplevel):
+    """A custom Tkinter Toplevel window for filename input with custom styling."""
     def __init__(self, parent, title, prompt_text, initial_value, fonts, colors):
         super().__init__(parent)
-        self.transient(parent)
-        self.grab_set()
+        self.transient(parent) # Set to be on top of parent
+        self.grab_set() # Grab focus, preventing interaction with parent
         self.title(title)
         self.parent = parent
-        self.result = None
+        self.result = None # Stores the user's input
         self.fonts = fonts
         self.colors = colors
 
-        # Center the dialog
+        # Center the dialog on the parent window
         parent.update_idletasks()
         x = parent.winfo_x() + (parent.winfo_width() // 2) - (self.winfo_width() // 2)
         y = parent.winfo_y() + (parent.winfo_height() // 2) - (self.winfo_height() // 2)
@@ -179,8 +197,9 @@ class CustomFilenameDialog(tk.Toplevel):
 
         self.create_widgets(prompt_text, initial_value)
 
+        # Handle window close button gracefully
         self.protocol("WM_DELETE_WINDOW", self.cancel)
-        self.wait_window(self)
+        self.wait_window(self) # Wait until this window is closed
 
     def create_widgets(self, prompt_text, initial_value):
         # Prompt Label
@@ -188,12 +207,12 @@ class CustomFilenameDialog(tk.Toplevel):
                                  fg=self.colors['text_color'], bg=self.colors['bg_color'], pady=10)
         prompt_label.pack(padx=10, pady=5)
 
-        # Entry for filename
+        # Entry for filename input
         self.entry_var = tk.StringVar(value=initial_value)
         self.entry = ttk.Entry(self, textvariable=self.entry_var, font=self.fonts['default'], width=50)
         self.entry.pack(padx=10, pady=5, fill=tk.X)
-        self.entry.bind("<Return>", lambda event: self.ok())
-        self.entry.focus_set()
+        self.entry.bind("<Return>", lambda event: self.ok()) # Bind Enter key to OK
+        self.entry.focus_set() # Set focus to the entry widget
 
         # Buttons frame
         button_frame = ttk.Frame(self, style='TFrame')
@@ -206,74 +225,85 @@ class CustomFilenameDialog(tk.Toplevel):
         cancel_button.pack(side=tk.LEFT, padx=5)
 
     def ok(self):
+        """Sets the result and destroys the dialog."""
         self.result = self.entry_var.get()
         self.destroy()
 
     def cancel(self):
+        """Cancels the dialog, setting result to None."""
         self.result = None
         self.destroy()
 
 
 class DownloadManager:
+    """Manages download operations, including handling queues, progress, and different download types."""
     def __init__(self):
-        self.download_queue = Queue()   
-        self.active_downloads = {}       
-        self.completed_downloads = []   
-        self.failed_downloads = []       
-        self.stop_flag = False           
-        self.pause_flag = False          
-        self.custom_filenames = {}       
-        self.batch_filename_prefix = None        
-        self.executor = ThreadPoolExecutor(max_workers=5)   
+        self.download_queue = Queue()   # Queue for pending downloads
+        self.active_downloads = {}        # Dictionary to store info about active downloads
+        self.completed_downloads = []   # List of completed download info
+        self.failed_downloads = []        # List of failed download info
+        self.stop_flag = False            # Flag to signal stopping all downloads
+        self.pause_flag = False           # Flag to signal pausing all downloads
+        self.custom_filenames = {}        # Stores custom filenames set by user for specific URLs
+        self.batch_filename_prefix = None # Prefix for sequential batch naming
+        self.executor = ThreadPoolExecutor(max_workers=5) # Thread pool for concurrent downloads
 
     def set_custom_filename(self, url, filename):
+        """Sets a custom filename for a given URL."""
         self.custom_filenames[url] = filename
 
     def set_batch_filename_prefix(self, prefix):
+        """Sets a prefix for batch naming of files."""
         self.batch_filename_prefix = prefix
 
     def add_to_queue(self, urls_with_assigned_filenames_and_paths):
         """
-        Adds URLs to the queue, expecting a list of (url, assigned_filename, save_path) tuples.
-        The assigned_filename is what will be used for saving.
+        Adds URLs to the download queue.
+        Each item is a tuple: (url, assigned_filename, save_path, is_youtube).
         """
-        for url, assigned_filename, save_path in urls_with_assigned_filenames_and_paths:
-            self.download_queue.put((url, assigned_filename, save_path))
+        for url, assigned_filename, save_path, is_youtube in urls_with_assigned_filenames_and_paths:
+            self.download_queue.put((url, assigned_filename, save_path, is_youtube))
 
     def get_proper_extension(self, url):
+        """
+        Attempts to determine the correct file extension for a given URL
+        by looking at the URL path and Content-Type header.
+        """
         parsed_url = urlparse(url)
         path = parsed_url.path
         
+        # Try to get extension from URL path first
         _, ext_from_path = os.path.splitext(path)
         if ext_from_path and len(ext_from_path) <= 5 and '.' in ext_from_path:   
             return ext_from_path.lower()
 
         url_lower = url.lower()
         
-        # Prioritize common video/audio/subtitle extensions based on common patterns
-        if 'mp4' in url_lower and not 'mp4.' in url_lower: return '.mp4'   
-        if 'avi' in url_lower and not 'avi.' in url_lower: return '.avi'
-        if 'mov' in url_lower and not 'mov.' in url_lower: return '.mov'
-        if 'mkv' in url_lower and not 'mkv.' in url_lower: return '.mkv'
-        if 'webm' in url_lower and not 'webm.' in url_lower: return '.webm'
-        if 'mp3' in url_lower and not 'mp3.' in url_lower: return '.mp3'
+        # Prioritize common video/audio/subtitle extensions based on common patterns in URL
+        if 'mp4' in url_lower and '.mp4' not in url_lower: return '.mp4'   
+        if 'avi' in url_lower and '.avi' not in url_lower: return '.avi'
+        if 'mov' in url_lower and '.mov' not in url_lower: return '.mov'
+        if 'mkv' in url_lower and '.mkv' not in url_lower: return '.mkv'
+        if 'webm' in url_lower and '.webm' not in url_lower: return '.webm'
+        if 'mp3' in url_lower and '.mp3' not in url_lower: return '.mp3'
         
         # Subtitle extensions
-        if 'srt' in url_lower and not 'srt.' in url_lower: return '.srt'
-        if 'sub' in url_lower and not 'sub.' in url_lower: return '.sub'
-        if 'vtt' in url_lower and not 'vtt.' in url_lower: return '.vtt'
+        if 'srt' in url_lower and '.srt' not in url_lower: return '.srt'
+        if 'sub' in url_lower and '.sub' not in url_lower: return '.sub'
+        if 'vtt' in url_lower and '.vtt' not in url_lower: return '.vtt'
 
         # Other common document/image/archive types
-        if 'pdf' in url_lower and not 'pdf.' in url_lower: return '.pdf'
-        if 'zip' in url_lower and not 'zip.' in url_lower: return '.zip'
+        if 'pdf' in url_lower and '.pdf' not in url_lower: return '.pdf'
+        if 'zip' in url_lower and '.zip' not in url_lower: return '.zip'
         if 'jpg' in url_lower or 'jpeg' in url_lower: return '.jpg'
-        if 'png' in url_lower and not 'png.' in url_lower: return '.png'
-        if 'gif' in url_lower and not 'gif.' in url_lower: return '.gif'
+        if 'png' in url_lower and '.png' not in url_lower: return '.png'
+        if 'gif' in url_lower and '.gif' not in url_lower: return '.gif'
 
+        # Fallback to Content-Type header if URL path or common patterns don't yield an extension
         try:
             # Use requests.head to get content type without downloading the whole file
-            response = requests.head(url, allow_redirects=True, timeout=3)
-            response.raise_for_status()   
+            response = requests.head(url, allow_redirects=True, timeout=5) # Increased timeout
+            response.raise_for_status()   # Raise HTTPError for bad responses (4xx or 5xx)
             content_type = response.headers.get('Content-Type', '').lower()
             
             if 'video/mp4' in content_type: return '.mp4'
@@ -292,21 +322,237 @@ class DownloadManager:
             elif 'text/html' in content_type: return '.html'
             elif 'text/csv' in content_type: return '.csv'
             
-        except requests.exceptions.RequestException:
+        except requests.exceptions.RequestException as e:
+            print(f"Warning: Could not get Content-Type for {url}: {e}") # Log the error
             pass   
 
         return '.bin' # Default binary extension if nothing else found
 
+    def is_youtube_url(self, url):
+        """Checks if the URL is a YouTube URL by looking at common YouTube domains."""
+        youtube_domains = [
+            'youtube.com', 'www.youtube.com', 'm.youtube.com', 'youtu.be', 'www.youtu.be',
+            'youtube-nocookie.com', 'www.youtube-nocookie.com'
+        ]
+        parsed_url = urlparse(url)
+        # Check if the netloc (domain) contains any of the YouTube domains
+        return any(domain in parsed_url.netloc for domain in youtube_domains)
+
+    def download_youtube_video(self, url, filename, save_path, quality_setting="best"):
+        """
+        Downloads a YouTube video using yt-dlp, providing progress updates.
+        This function runs in a separate thread.
+        `quality_setting` determines the format string passed to yt-dlp.
+        """
+        # yt-dlp automatically adds the correct extension, so we pass the base filename
+        filepath_without_ext = os.path.join(save_path, os.path.splitext(filename)[0])
+        
+        # yt-dlp format selection based on quality_setting
+        # 'bestvideo+bestaudio/best' is default, ensures separate streams are merged for best quality
+        # 'best' is general best (video+audio if available)
+        # 'worst' is lowest quality
+        # 'mp4' specific - could add others like 'webm', 'mp3' etc.
+        format_string = "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best" # Default best mp4
+        if quality_setting == "best":
+            format_string = "bestvideo+bestaudio/best"
+        elif quality_setting == "high":
+            format_string = "bestvideo[height<=1080][ext=mp4]+bestaudio[ext=m4a]/best[height<=1080][ext=mp4]/best"
+        elif quality_setting == "medium":
+            format_string = "bestvideo[height<=720][ext=mp4]+bestaudio[ext=m4a]/best[height<=720][ext=mp4]/best"
+        elif quality_setting == "low":
+            format_string = "bestvideo[height<=480][ext=mp4]+bestaudio[ext=m4a]/best[height<=480][ext=mp4]/best"
+        elif quality_setting == "audio_only":
+            format_string = "bestaudio[ext=m4a]/bestaudio" # mp3 might require ffmpeg post-processing
+
+        command = [
+            'yt-dlp',
+            '-f', format_string, # Format selection
+            '-o', f'{filepath_without_ext}.%(ext)s', 
+            '--no-playlist', 
+            url
+        ]
+        
+        self.active_downloads[url] = {
+            'progress': 0, 
+            'speed': 0, 
+            'size': 0, 
+            'filename': filename, 
+            'downloaded_bytes': 0, 
+            'is_youtube': True,
+            'quality': quality_setting # Store quality setting
+        }
+
+        process = None 
+        try:
+            process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, bufsize=1)
+            
+            total_size = 0
+            downloaded_bytes = 0
+            start_time = time.time()
+
+            for line in process.stdout:
+                if self.stop_flag:
+                    if process: 
+                        process.terminate() 
+                        process.wait(timeout=1) 
+                    return {'status': 'stopped', 'filename': filename, 'url': url}
+                
+                if self.pause_flag:
+                    while self.pause_flag and not self.stop_flag:
+                        time.sleep(0.1) 
+                    if self.stop_flag: 
+                        if process:
+                            process.terminate()
+                            process.wait(timeout=1)
+                        return {'status': 'stopped', 'filename': filename, 'url': url}
+
+                if "%" in line and ("[download]" in line or "[info]" in line) and ("of" in line or "at" in line):
+                    try:
+                        parts = line.split()
+                        progress = 0.0
+                        size_val = 0.0
+                        size_unit = ""
+                        speed_val = 0.0
+                        speed_unit = ""
+
+                        for i, part in enumerate(parts):
+                            if '%' in part:
+                                progress = float(part.strip('%'))
+                                break
+                        
+                        for i, part in enumerate(parts):
+                            if 'of' in part and i + 1 < len(parts):
+                                size_str = parts[i + 1]
+                                num_str = "".join(filter(lambda c: c.isdigit() or c == '.', size_str))
+                                unit_str = "".join(filter(str.isalpha, size_str))
+                                if num_str:
+                                    size_val = float(num_str)
+                                    size_unit = unit_str
+                                break
+                        
+                        for i, part in enumerate(parts):
+                            if 'at' in part and i + 1 < len(parts):
+                                speed_str = parts[i + 1]
+                                num_str = "".join(filter(lambda c: c.isdigit() or c == '.', speed_str))
+                                unit_str = "".join(filter(str.isalpha, speed_str))
+                                if num_str:
+                                    speed_val = float(num_str)
+                                    speed_unit = unit_str
+                                break
+                        
+                        total_size = self._parse_size_string(size_val, size_unit)
+                        download_speed = self._parse_size_string(speed_val, speed_unit)
+                        
+                        if total_size > 0:
+                            downloaded_bytes = total_size * (progress / 100)
+                        else:
+                            downloaded_bytes = 0
+
+                        self.active_downloads[url]['progress'] = progress
+                        self.active_downloads[url]['speed'] = download_speed
+                        self.active_downloads[url]['size'] = total_size
+                        self.active_downloads[url]['downloaded_bytes'] = downloaded_bytes
+                            
+                    except (ValueError, IndexError):
+                        pass 
+
+                elif '[download] Destination:' in line: 
+                    try:
+                        actual_filepath = line.split('Destination:')[1].strip()
+                        actual_filename = os.path.basename(actual_filepath)
+                        self.active_downloads[url]['filename'] = actual_filename
+                    except IndexError:
+                        pass 
+
+            process.wait() 
+
+            if process.returncode == 0:
+                found_file = None
+                final_saved_filename = filename 
+
+                if 'filename' in self.active_downloads[url]:
+                    potential_actual_path = os.path.join(save_path, self.active_downloads[url]['filename'])
+                    if os.path.exists(potential_actual_path):
+                        found_file = potential_actual_path
+
+                if not found_file:
+                    initial_basename = os.path.splitext(filename)[0]
+                    for f in os.listdir(save_path):
+                        if f.startswith(initial_basename) and (f.endswith('.mp4') or f.endswith('.webm') or f.endswith('.mkv') or f.endswith('.mp3') or f.endswith('.ogg') or f.endswith('.avi') or f.endswith('.m4a')):
+                            found_file = os.path.join(save_path, f)
+                            break
+                
+                actual_size = 0
+                if found_file and os.path.exists(found_file):
+                    actual_size = os.path.getsize(found_file)
+                    final_saved_filename = os.path.basename(found_file)
+                else:
+                    actual_size = downloaded_bytes
+
+                download_info = {
+                    'status': 'completed', 
+                    'filename': final_saved_filename, 
+                    'url': url,
+                    'size': actual_size, 
+                    'time': time.time() - start_time
+                }
+                self.completed_downloads.append(download_info)
+                self.active_downloads.pop(url, None) 
+                return download_info
+            else:
+                stderr_output = process.stderr.read() if process.stderr else "No stderr output"
+                raise Exception(f"yt-dlp exited with error code {process.returncode}. Error: {stderr_output.strip()}")
+
+        except Exception as e:
+            error_info = {
+                'status': 'failed', 'filename': filename, 'url': url, 'error': str(e)
+            }
+            self.failed_downloads.append(error_info)
+            self.active_downloads.pop(url, None)
+            
+            initial_basename_no_ext = os.path.splitext(filename)[0]
+            for f in os.listdir(save_path):
+                if f.startswith(initial_basename_no_ext) and ('.part' in f or '.temp' in f or '.ytdl' in f): 
+                    try:
+                        os.remove(os.path.join(save_path, f))
+                    except OSError as remove_err:
+                        print(f"Error removing partial file {f}: {remove_err}")
+            return error_info
+
+    def _parse_size_string(self, value, unit):
+        """Helper to convert string sizes (e.g., '10.0MiB') to bytes."""
+        unit = unit.strip().lower()
+        if unit.startswith('k'):
+            return value * 1024
+        elif unit.startswith('m'):
+            return value * 1024**2
+        elif unit.startswith('g'):
+            return value * 1024**3
+        elif unit.startswith('t'):
+            return value * 1024**4
+        return value 
+
+
     def download_file(self, url, filename, save_path):
+        """
+        Downloads a regular file from a URL using requests, providing progress updates.
+        This function runs in a separate thread.
+        """
         filepath = ""   
         try:
-            # Crucially, join save_path and filename here
             filepath = os.path.join(save_path, filename) 
 
             if os.path.exists(filepath):
                 return {'status': 'exists', 'filename': filename, 'url': url}
 
-            self.active_downloads[url] = {'progress': 0, 'speed': 0, 'size': 0, 'filename': filename, 'downloaded_bytes': 0}
+            self.active_downloads[url] = {
+                'progress': 0, 
+                'speed': 0, 
+                'size': 0, 
+                'filename': filename, 
+                'downloaded_bytes': 0, 
+                'is_youtube': False
+            }
             
             headers = {
                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
@@ -314,9 +560,9 @@ class DownloadManager:
             
             start_time = time.time()
 
-            with requests.get(url, stream=True, headers=headers) as r:
+            with requests.get(url, stream=True, headers=headers, timeout=10) as r: # Added timeout
                 r.raise_for_status()   
-                total_size = int(r.headers.get('content-length', 0))
+                total_size = int(r.headers.get('content-length', 0)) 
                 self.active_downloads[url]['size'] = total_size   
 
                 downloaded_bytes = 0
@@ -325,12 +571,12 @@ class DownloadManager:
                 with open(filepath, 'wb') as f:
                     for chunk in r.iter_content(chunk_size=8192):   
                         if self.stop_flag:
-                            if os.path.exists(filepath): os.remove(filepath)
+                            if os.path.exists(filepath): os.remove(filepath) 
                             return {'status': 'stopped', 'filename': filename, 'url': url}
                         if self.pause_flag:
                             while self.pause_flag and not self.stop_flag:
                                 time.sleep(0.1)   
-                            if self.stop_flag:
+                            if self.stop_flag: 
                                 if os.path.exists(filepath): os.remove(filepath)
                                 return {'status': 'stopped', 'filename': filename, 'url': url}
                         
@@ -369,49 +615,55 @@ class DownloadManager:
             return error_info
 
     def start_downloads(self):
+        """Starts processing items from the download queue."""
         self.stop_flag = False
         self.pause_flag = False
-        # Remove futures = [] and as_completed loop; the downloads are initiated directly by fetching from queue
         while not self.download_queue.empty() and not self.stop_flag:
-            url, assigned_filename, save_path = self.download_queue.get()
-            self.executor.submit(self.download_file, url, assigned_filename, save_path)
+            url, assigned_filename, save_path, is_youtube = self.download_queue.get()
+            # If it's a YouTube URL, pass the selected quality setting
+            if is_youtube:
+                # Retrieve quality setting from the GUI (DownloaderApp instance)
+                quality_setting = DownloaderApp.get_instance().youtube_quality_var.get()
+                self.executor.submit(self.download_youtube_video, url, assigned_filename, save_path, quality_setting)
+            else:
+                self.executor.submit(self.download_file, url, assigned_filename, save_path)
         
-        # This pass statement is no longer needed but kept for structural clarity if desired.
-        pass    
 
     def pause_downloads(self):
+        """Sets the pause flag to true, stopping current downloads temporarily."""
         self.pause_flag = True
 
     def resume_downloads(self):
+        """Resets the pause flag to false, resuming downloads."""
         self.pause_flag = False
 
     def stop_all_downloads(self):
+        """Sets the stop flag to true, signaling all active downloads to stop."""
         self.stop_flag = True
-        self.pause_flag = False
+        self.pause_flag = False 
 
     @staticmethod
     def get_filename_from_url(url):
+        """Extracts a default filename from a URL."""
         parsed = urlparse(url)
         path = parsed.path
-        filename = os.path.basename(unquote(path))
+        filename = os.path.basename(unquote(path)) 
         if not filename:
-            filename = f"downloaded_file_{int(time.time())}"
+            filename = f"downloaded_file_{int(time.time())}" 
         return filename
     
     @staticmethod
     def get_base_name_from_url(url):
         """
-        Extracts the filename without extension from a URL.
-        Removes common URL query parameters or fragments that look like extensions.
+        Extracts the filename without extension from a URL, cleaning up query params/fragments.
         """
         filename = DownloadManager.get_filename_from_url(url)
-        # Remove any query parameters or fragments if they are part of the filename
         filename = filename.split('?')[0].split('#')[0]
-        return os.path.splitext(filename)[0] # Just return the base name without worrying about vN for this algorithm
-
+        return os.path.splitext(filename)[0] 
 
     @staticmethod
     def format_size(size_bytes):
+        """Formats bytes into human-readable units (KB, MB, GB)."""
         if size_bytes == 0: return "0B"
         size_name = ("B", "KB", "MB", "GB")
         i = int(math.floor(math.log(size_bytes, 1024)))
@@ -421,11 +673,24 @@ class DownloadManager:
 
     @staticmethod
     def format_speed(speed_bytes):
+        """Formats bytes per second into human-readable speed units."""
         return f"{DownloadManager.format_size(speed_bytes)}/s"
 
 
 class DownloaderApp:
+    """The main Tkinter application class for the Download Manager GUI."""
+    _instance = None # Class variable to hold the single instance
+
+    @staticmethod
+    def get_instance():
+        """Returns the single instance of DownloaderApp."""
+        return DownloaderApp._instance
+
     def __init__(self, root):
+        if DownloaderApp._instance is not None:
+            raise Exception("DownloaderApp is a Singleton! Use DownloaderApp.get_instance()")
+        DownloaderApp._instance = self # Store the instance
+
         self.root = root
         self.root.title("Advanced Download Manager")   
         self.root.geometry("850x650")   
@@ -449,7 +714,6 @@ class DownloaderApp:
             'button': self.button_font   
         }
 
-        # Store color palette hex values directly in instance for easy access by tk.widgets
         self.color_text_color = '#F7F8FF'
         self.color_bg_color = '#162B4A'
         self.color_accent_color = '#006EE5'
@@ -464,7 +728,6 @@ class DownloaderApp:
         self.exit_white_text = '#FFFFFF'
         self.exit_dark_text_on_yellow = self.color_bg_color   
 
-        # Consolidated colors dict for CustomFilenameDialog
         self.colors_dict = {
             'text_color': self.color_text_color,
             'bg_color': self.color_bg_color,
@@ -479,46 +742,84 @@ class DownloaderApp:
         try:
             CustomTheme.apply(root, self.fonts_dict)
         except Exception as e:
-            print(f"Error applying theme: {e}")   
+            print(f"Error applying theme: {e}") 
         
         self.download_manager = DownloadManager()
+
+        # YouTube Quality Variable
+        self.youtube_quality_options = ["Best", "High (1080p)", "Medium (720p)", "Low (480p)", "Audio Only"]
+        self.youtube_quality_var = tk.StringVar(value=self.youtube_quality_options[0]) # Default to "Best"
+
         self.create_widgets()   
-        
-        self.update_interval = 500   
+        self.create_menubar() # Create the menubar
+
+        self.update_interval = 500 
         self.root.after(self.update_interval, self.update_download_status)
 
+    def create_menubar(self):
+        """Creates the application's menubar with File and Options menus."""
+        menubar = tk.Menu(self.root)
+        self.root.config(menu=menubar)
+
+        # File Menu
+        file_menu = tk.Menu(menubar, tearoff=0)
+        menubar.add_cascade(label="File", menu=file_menu)
+        file_menu.add_command(label="Exit", command=self.on_exit_button_click_menu)
+
+        # Options Menu
+        options_menu = tk.Menu(menubar, tearoff=0)
+        menubar.add_cascade(label="Options", menu=options_menu)
+
+        # YouTube Quality Submenu
+        quality_menu = tk.Menu(options_menu, tearoff=0)
+        options_menu.add_cascade(label="YouTube Quality", menu=quality_menu)
+        
+        for option in self.youtube_quality_options:
+            quality_menu.add_radiobutton(label=option, variable=self.youtube_quality_var, value=option)
+
+    def on_exit_button_click_menu(self):
+        """Wrapper for exit button click logic when called from menubar."""
+        self.on_exit_button_click(None) # Pass None as event object
+
     def create_widgets(self):
+        """Initializes and arranges all GUI widgets."""
+        # Header Frame
         header_frame = ttk.Frame(self.root, style='TFrame')
         header_frame.pack(fill=tk.X, pady=(2, 2), padx=5)   
         
         ttk.Label(header_frame, text="Advanced Download Manager - created by Nima-Ghaffari",   
                   font=self.large_heading_font, anchor=tk.CENTER).pack(fill=tk.X)
 
+        # Main Content Frame, set up with grid for flexible layout
         main_content_frame = ttk.Frame(self.root, style='TFrame', padding=2)   
         main_content_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=2)   
         main_content_frame.grid_columnconfigure(0, weight=1)   
-        main_content_frame.grid_rowconfigure(3, weight=1)   
+        main_content_frame.grid_rowconfigure(3, weight=1) # Allow Treeview to expand
 
+        # URL Input Section
         ttk.Label(main_content_frame, text="URL Input", font=self.heading_font, anchor=tk.W, style='DownloadsHeading.TLabel').grid(row=0, column=0, sticky='w', padx=5, pady=(2,0))   
 
         input_container_frame = ttk.Frame(main_content_frame, style='TFrame', padding=5, relief='solid', borderwidth=1)   
         input_container_frame.grid(row=1, column=0, sticky='nsew', pady=(0,2))   
         input_container_frame.grid_columnconfigure(0, weight=1)
 
+        # Save Path Frame within input container
         save_path_frame = ttk.Frame(input_container_frame, style='TFrame')   
         save_path_frame.pack(fill=tk.X, pady=(0,2))   
         save_path_frame.grid_columnconfigure(1, weight=1)
 
         ttk.Label(save_path_frame, text="Save to:", font=self.default_font).pack(side=tk.LEFT, padx=(0,2))   
-        self.save_path_var = tk.StringVar(value=os.path.expanduser("~/Downloads"))
+        self.save_path_var = tk.StringVar(value=os.path.expanduser("~/Downloads")) 
         self.path_entry = ttk.Entry(save_path_frame, textvariable=self.save_path_var, font=self.default_font)   
         self.path_entry.pack(side=tk.LEFT, expand=True, fill=tk.X, padx=(0,2))   
         ttk.Button(save_path_frame, text="Browse", command=self.browse_path, width=8).pack(side=tk.LEFT)
 
+        # Scrolled Text for URL input
         ttk.Label(input_container_frame, text="Enter URLs (one per line):", font=self.default_font).pack(anchor=tk.W, pady=(2,2))   
         self.url_text = scrolledtext.ScrolledText(input_container_frame, height=6, wrap=tk.WORD, font=self.default_font, undo=True)
         self.url_text.pack(fill=tk.BOTH, expand=True, pady=(0, 2))   
 
+        # Buttons related to URL input and naming
         input_buttons_frame = ttk.Frame(input_container_frame, style='TFrame')   
         input_buttons_frame.pack(fill=tk.X, pady=(0,2), anchor=tk.W)   
         
@@ -530,49 +831,47 @@ class DownloaderApp:
         ttk.Button(input_buttons_frame, text="Set Names", command=self.set_filenames, width=fixed_button_width).pack(side=tk.LEFT, padx=(0,1))   
         ttk.Button(input_buttons_frame, text="Reset Names", command=self.reset_filenames, width=fixed_button_width).pack(side=tk.LEFT, padx=(0,1))   
 
-        # --- Moved Subfolder Option (tk.Checkbutton instead of ttk.Checkbutton) ---
-        
+        # Subfolder Option (using tk.Checkbutton for more direct styling control)
         self.use_subfolder_var = tk.IntVar(value=0)
         self.subfolder_var = tk.StringVar(value="")
 
         self.subfolder_checkbox = tk.Checkbutton(
-            input_buttons_frame, # Parent is now input_buttons_frame
+            input_buttons_frame, 
             text="Save custom folder:",   
             variable=self.use_subfolder_var,
             command=self.toggle_subfolder_entry,
             font=self.default_font,   
             bg=self.color_bg_color,
             fg=self.color_text_color,
-            selectcolor=self.color_bg_color,
+            selectcolor=self.color_bg_color, 
             activebackground=self.color_bg_color,
             activeforeground=self.color_text_color,
             highlightbackground=self.color_bg_color,
             highlightcolor=self.color_bg_color,
             borderwidth=0,
-            indicatoron=True
+            indicatoron=True 
         )
-        self.subfolder_checkbox.pack(side=tk.LEFT, padx=(5, 5)) # Adjusted padding
+        self.subfolder_checkbox.pack(side=tk.LEFT, padx=(5, 5)) 
 
         self.subfolder_entry = ttk.Entry(
-            input_buttons_frame, # Parent is now input_buttons_frame
+            input_buttons_frame, 
             textvariable=self.subfolder_var,
             font=self.default_font,
-            state=tk.DISABLED,
-            width=20 # Reduced width to fit
+            state=tk.DISABLED, 
+            width=20 
         )
         self.subfolder_entry.pack(side=tk.LEFT, expand=False, fill=tk.X, padx=(0,2))   
         
         self.confirm_subfolder_btn = ttk.Button(
-            input_buttons_frame, # Parent is now input_buttons_frame
+            input_buttons_frame, 
             text="Confirm",
             command=self.confirm_subfolder_selection,
-            state=tk.DISABLED,   
-            width=8 # Maintain consistent small button width
+            state=tk.DISABLED, 
+            width=8 
         )
         self.confirm_subfolder_btn.pack(side=tk.LEFT, padx=(0,0))   
 
-        # --- End of Moved Subfolder Option ---
-
+        # Downloads List (Treeview)
         ttk.Label(main_content_frame, text="Downloads", font=self.heading_font, anchor=tk.W, style='DownloadsHeading.TLabel').grid(row=2, column=0, sticky='w', padx=5, pady=(2,0))   
 
         downloads_list_container_frame = ttk.Frame(main_content_frame, style='TFrame', padding=5, relief='solid', borderwidth=1)   
@@ -600,6 +899,7 @@ class DownloaderApp:
         y_scroll.grid(row=0, column=1, sticky='ns')
         x_scroll.grid(row=1, column=0, sticky='ew')
 
+        # Control Buttons Frame (Left Side)
         left_control_buttons_frame = ttk.Frame(self.root, style='TFrame', padding=(2, 2))   
         left_control_buttons_frame.pack(side=tk.LEFT, anchor=tk.SW, padx=5, pady=(2, 5))   
 
@@ -612,20 +912,21 @@ class DownloaderApp:
         self.stop_btn = ttk.Button(left_control_buttons_frame, text="Stop All", command=self.stop_downloads, width=fixed_button_width)   
         self.stop_btn.pack(side=tk.LEFT, padx=(0,1))   
 
-        self.another_btn = ttk.Button(left_control_buttons_frame, text="Another", command=self.clear_all_content, width=fixed_button_width)   
+        self.another_btn = ttk.Button(left_control_buttons_frame, text="Clear All", command=self.clear_all_content, width=fixed_button_width)   
         self.another_btn.pack(side=tk.LEFT, padx=(0,1))   
 
+        # Control Buttons Frame (Right Side) - Exit Button
         right_control_buttons_frame = ttk.Frame(self.root, style='TFrame', padding=(2, 2))   
         right_control_buttons_frame.pack(side=tk.RIGHT, anchor=tk.SE, padx=5, pady=(2, 5))   
 
         self.exit_btn = tk.Button(right_control_buttons_frame, text="Exit",   
-                                 font=self.fonts_dict['button'],   
-                                 width=fixed_button_width,   
-                                 bg=self.color_accent_color,   
-                                 fg=self.color_button_text_color,
-                                 relief=tk.FLAT, borderwidth=0, padx=10, pady=5,
-                                 activebackground=self.color_hover_color,   
-                                 activeforeground=self.color_button_text_color)
+                                   font=self.fonts_dict['button'],   
+                                   width=fixed_button_width,   
+                                   bg=self.color_accent_color,   
+                                   fg=self.color_button_text_color,
+                                   relief=tk.FLAT, borderwidth=0, padx=10, pady=5,
+                                   activebackground=self.color_hover_color,   
+                                   activeforeground=self.color_button_text_color)
 
         self.exit_btn.pack(side=tk.RIGHT)
         
@@ -634,30 +935,28 @@ class DownloaderApp:
         self.exit_default_active_bg = self.color_hover_color   
         self.exit_default_active_fg = self.color_button_text_color
         
-        self.exit_red_hover = '#FF0000'   
-        self.exit_yellow_hover = '#FFD700'   
-        self.exit_white_text = '#FFFFFF'
-        self.exit_dark_text_on_yellow = self.color_bg_color   
-
         self.exit_btn.bind("<Enter>", self.on_exit_button_hover)
         self.exit_btn.bind("<Leave>", self.on_exit_button_leave)
         self.exit_btn.bind("<Button-1>", self.on_exit_button_click)   
 
+        # Status Bar at the bottom
         self.status_var = tk.StringVar()
         self.status_var.set("Ready")   
         ttk.Label(self.root, textvariable=self.status_var, style='TStatus.TLabel').pack(fill=tk.X, pady=(0,0), padx=5)   
 
     def toggle_subfolder_entry(self):
+        """Enables/disables the subfolder entry and confirm button based on checkbox state."""
         if self.use_subfolder_var.get() == 1:
             self.subfolder_entry.config(state=tk.NORMAL)
             self.confirm_subfolder_btn.config(state=tk.NORMAL)   
         else:
             self.subfolder_entry.config(state=tk.DISABLED)
             self.confirm_subfolder_btn.config(state=tk.DISABLED)   
-            self.subfolder_var.set("")   
-            self.subfolder_entry.config(style='TEntry')   
+            self.subfolder_var.set("") # Clear subfolder name if unchecked  
+            self.subfolder_entry.config(style='TEntry') # Reset style if it was in error/success state 
 
     def confirm_subfolder_selection(self):
+        """Confirms the entered subfolder name, applying validation and visual feedback."""
         if self.use_subfolder_var.get() == 1:
             subfolder_name = self.subfolder_var.get().strip()
             if not subfolder_name:
@@ -676,12 +975,13 @@ class DownloaderApp:
             self.subfolder_entry.config(style='TEntry.Success')   
             self.status_var.set(f"Subfolder '{sanitized_name}' confirmed.")
             self.root.after(1500, lambda: self.subfolder_entry.config(style='TEntry'))   
-            self.subfolder_var.set(sanitized_name)   
+            self.subfolder_var.set(sanitized_name) 
         else:   
             self.status_var.set("Subfolder option not selected.")
 
 
     def on_exit_button_hover(self, event):
+        """Changes exit button color on hover based on download status."""
         if self.download_manager.active_downloads:
             self.exit_btn.config(bg=self.exit_red_hover, fg=self.exit_white_text,   
                                          activebackground=self.exit_red_hover, activeforeground=self.exit_white_text)
@@ -693,25 +993,26 @@ class DownloaderApp:
                                          activebackground=self.exit_default_active_bg, activeforeground=self.exit_default_active_fg)
 
     def on_exit_button_leave(self, event):
+        """Resets exit button color when mouse leaves."""
         self.exit_btn.config(bg=self.exit_default_bg_color, fg=self.exit_default_fg_color,   
-                                     activebackground=self.exit_default_active_bg, activeforeground=self.exit_default_active_fg)
+                                       activebackground=self.exit_default_active_bg, activeforeground=self.exit_default_active_fg)
 
 
     def on_exit_button_click(self, event):
+        """Handles exit button click with confirmation for ongoing downloads."""
         if self.download_manager.active_downloads:
             response = messagebox.askyesno("Confirm Exit",   
-                                           "Downloads are in progress. Do you want to stop all downloads and exit?",
-                                           parent=self.root, icon='warning')
+                                            "Downloads are in progress. Do you want to stop all downloads and exit?",
+                                            parent=self.root, icon='warning')
             if response:
                 self.download_manager.stop_all_downloads()
                 self.root.quit()   
         elif not self.download_manager.download_queue.empty():
             response = messagebox.askyesno("Confirm Exit",   
-                                           "There are pending downloads in the queue. Do you want to clear the queue and exit?",
-                                           parent=self.root, icon='question')
+                                            "There are pending downloads in the queue. Do you want to clear the queue and exit?",
+                                            parent=self.root, icon='question')
             if response:
                 self.download_manager.stop_all_downloads()   
-                # Clear the queue fully
                 with self.download_manager.download_queue.mutex:
                     self.download_manager.download_queue.queue.clear()
                 self.root.quit()
@@ -719,6 +1020,7 @@ class DownloaderApp:
             self.root.quit()
 
     def set_filenames(self):
+        """Prompts user to set a batch filename prefix for all URLs."""
         urls_text = self.url_text.get("1.0", tk.END).strip()
         if not urls_text:
             messagebox.showwarning("Warning", "Please enter URLs first to set filenames.", parent=self.root)
@@ -729,26 +1031,26 @@ class DownloaderApp:
             messagebox.showwarning("Warning", "No valid URLs found to set filenames for.", parent=self.root)
             return
 
-        # Always ask for a base name for the new sequential numbering
         dialog = CustomFilenameDialog(self.root, "Set Base Filename", 
-                                             "Enter base name for files (e.g., 'MyMovie'):", 
-                                             "MyFile", # Default suggestion
-                                             self.fonts_dict, self.colors_dict)
+                                            "Enter base name for files (e.g., 'MyMovie'):", 
+                                            "MyFile", 
+                                            self.fonts_dict, self.colors_dict)
         base_name = dialog.result
         
         if base_name:
             self.download_manager.set_batch_filename_prefix(base_name)
-            # Clear custom filenames when a new batch prefix is set
             self.download_manager.custom_filenames = {} 
             self.update_treeview_filenames()   
         else:
-            # If user cancels the base name input, disable batch naming
             self.download_manager.batch_filename_prefix = None 
             self.update_treeview_filenames()
             messagebox.showinfo("Filename Setup", "No base name set. Filenames will revert to default URL names or individual custom names.", parent=self.root)
 
-
     def edit_filenames(self):
+        """
+        Allows user to edit filenames for each URL individually.
+        (Note: This function is present in the DownloadManager but not currently hooked to a GUI button).
+        """
         urls_text = self.url_text.get("1.0", tk.END).strip()
         if not urls_text:
             messagebox.showwarning("Warning", "Please enter URLs first to set individual filenames.", parent=self.root)
@@ -759,7 +1061,6 @@ class DownloaderApp:
         for url in urls:
             default_name = self.download_manager.get_filename_from_url(url)
             ext = self.download_manager.get_proper_extension(url)
-            # Ensure the default name always has a proper extension if it doesn't already
             if not default_name.lower().endswith(ext) and '.' not in default_name:
                 default_name += ext
 
@@ -770,7 +1071,6 @@ class DownloaderApp:
             new_name = dialog.result
 
             if new_name:
-                # Add extension if missing or incomplete
                 if '.' not in new_name or new_name.endswith('.'):   
                     new_name += self.download_manager.get_proper_extension(url)
                 self.download_manager.set_custom_filename(url, new_name)
@@ -778,13 +1078,19 @@ class DownloaderApp:
         self.update_treeview_filenames()   
 
     def reset_filenames(self):
+        """Resets all custom and batch filenames to default (derived from URL)."""
         self.download_manager.custom_filenames = {}
         self.download_manager.batch_filename_prefix = None
         messagebox.showinfo("Reset", "Filenames reset to default (derived from URL).", parent=self.root)
         self.update_treeview_filenames()   
 
     def update_treeview_filenames(self):
-        # Clear existing items
+        """
+        Populates or updates the Treeview with URLs and their determined filenames.
+        Also, prepares the download queue with final filenames and save paths.
+        This function determines if a URL is YouTube or not and assigns filenames.
+        """
+        # Clear existing items in Treeview
         for item in self.tree.get_children():
             self.tree.delete(item)
         
@@ -793,7 +1099,6 @@ class DownloaderApp:
 
         processed_urls_for_queue = []
         
-        # New: Dictionary to store the next counter for each extension
         extension_counters = {} 
 
         base_save_path = self.save_path_var.get()
@@ -801,69 +1106,62 @@ class DownloaderApp:
 
         if self.use_subfolder_var.get() == 1:   
             subfolder_name = self.subfolder_var.get().strip()
-            if subfolder_name: # Only create subfolder path if a valid name is entered
+            if subfolder_name: 
                 final_save_path = os.path.join(base_save_path, subfolder_name)
             
         for url in urls:
             filename_to_display = ""
             assigned_filename_for_queue = ""
+            is_youtube = self.download_manager.is_youtube_url(url) 
 
             if url in self.download_manager.custom_filenames:
-                # If a custom filename is set, use it directly
                 filename_to_display = self.download_manager.custom_filenames[url]
                 assigned_filename_for_queue = filename_to_display
             elif self.download_manager.batch_filename_prefix:
-                # Get the extension for the current URL
-                current_ext = self.download_manager.get_proper_extension(url)
+                current_ext = ".mp4" if is_youtube else self.download_manager.get_proper_extension(url)
                 
-                # Get the current counter for this extension, or 0 if not seen before
                 current_counter = extension_counters.get(current_ext, 0)
-                current_counter += 1 # Increment the counter for this extension
-                extension_counters[current_ext] = current_counter # Update the counter
+                current_counter += 1 
+                extension_counters[current_ext] = current_counter 
 
-                # Construct the filename: Prefix_NNN.ext
                 filename_to_display = f"{self.download_manager.batch_filename_prefix}_{current_counter:03d}{current_ext}"
                 assigned_filename_for_queue = filename_to_display
             else:
-                # Default behavior: use filename derived from URL
                 filename_to_display = self.download_manager.get_filename_from_url(url)
-                ext = self.download_manager.get_proper_extension(url)
-                if not filename_to_display.lower().endswith(ext) and '.' not in filename_to_display:
-                    filename_to_display += ext
+                if not is_youtube: 
+                    ext = self.download_manager.get_proper_extension(url)
+                    if not filename_to_display.lower().endswith(ext) and '.' not in filename_to_display:
+                        filename_to_display += ext
                 assigned_filename_for_queue = filename_to_display
 
-            # Use URL as item ID for robust updating in update_download_status
             self.tree.insert('', 'end', values=(filename_to_display, '', '0%', 'Ready'), iid=url) 
-            # Crucial change: pass the determined final_save_path for *each* URL
-            processed_urls_for_queue.append((url, assigned_filename_for_queue, final_save_path))
+            processed_urls_for_queue.append((url, assigned_filename_for_queue, final_save_path, is_youtube))
         
-        # Clear the queue and add the processed URLs with their assigned filenames and save paths
         with self.download_manager.download_queue.mutex:
             self.download_manager.download_queue.queue.clear()
         self.download_manager.add_to_queue(processed_urls_for_queue)
 
     def browse_path(self):
+        """Opens a directory dialog for the user to select a save path."""
         path = filedialog.askdirectory(parent=self.root)
         if path:
             self.save_path_var.set(path)
 
     def add_urls(self):
+        """Adds URLs from the text input to the download queue and updates the Treeview."""
         urls_text = self.url_text.get("1.0", tk.END).strip()
         if not urls_text:
             messagebox.showwarning("Warning", "Please enter at least one URL to add.", parent=self.root)
             return
             
         urls = [url.strip() for url in urls_text.split('\n') if url.strip()]
-        
-        # Validate URLs to prevent adding empty strings if user enters multiple newlines
         urls = [url for url in urls if url] 
 
-        if not urls: # Check again after cleaning
+        if not urls: 
             messagebox.showwarning("Warning", "No valid URLs found to add.", parent=self.root)
             return
 
         base_save_path = self.save_path_var.get()
-        
         final_save_path = base_save_path
 
         if self.use_subfolder_var.get() == 1:   
@@ -890,14 +1188,13 @@ class DownloaderApp:
                 messagebox.showerror("Error", f"Could not create save directory: {e}", parent=self.root)
                 return
         
-        # Call update_treeview_filenames to process names and populate the queue
-        # This will also update the download_manager.download_queue with the correct filenames AND correct save paths
         self.update_treeview_filenames() 
         
-        self.url_text.delete("1.0", tk.END)   
+        self.url_text.delete("1.0", tk.END) 
         self.status_var.set(f"Added {len(urls)} URLs to queue. Ready to start downloads.")   
 
     def start_downloads(self):
+        """Initiates the download process for all queued items."""
         if self.download_manager.download_queue.empty() and not self.download_manager.active_downloads:
             messagebox.showwarning("Warning", "No files in queue or active downloads to start.", parent=self.root)
             return
@@ -918,6 +1215,7 @@ class DownloaderApp:
         self.status_var.set("Downloading...")   
 
     def pause_toggle(self):
+        """Toggles between pausing and resuming downloads."""
         if self.download_manager.pause_flag:
             self.download_manager.resume_downloads()
             self.pause_btn.config(text="Pause / Resume")
@@ -928,8 +1226,10 @@ class DownloaderApp:
             self.status_var.set("Paused")   
 
     def stop_downloads(self):
+        """Stops all active and pending downloads."""
         self.download_manager.stop_all_downloads()
         self.status_var.set("Stopping downloads...")   
+        
         self.start_btn.config(state=tk.NORMAL)
         self.pause_btn.config(state=tk.DISABLED, text="Pause / Resume")
         self.stop_btn.config(state=tk.DISABLED)
@@ -943,16 +1243,15 @@ class DownloaderApp:
                 self.subfolder_entry.config(state=tk.NORMAL)
                 self.confirm_subfolder_btn.config(state=tk.NORMAL)
 
-
     def clear_all_content(self):
+        """Clears all URLs, download status, and resets the application state."""
         self.download_manager.stop_all_downloads()
-        time.sleep(0.1)   
+        time.sleep(0.1) 
         
-        self.url_text.delete("1.0", tk.END)
+        self.url_text.delete("1.0", tk.END) 
 
-        self.tree.delete(*self.tree.get_children())
+        self.tree.delete(*self.tree.get_children()) 
 
-        # Re-initialize DownloadManager to ensure all queues and states are truly reset
         self.download_manager = DownloadManager()   
 
         self.status_var.set("Ready for new downloads.")
@@ -972,18 +1271,19 @@ class DownloaderApp:
 
 
     def update_download_status(self):
-        # Basic check to ensure widgets are still present before trying to update them
-        if not all([self.start_btn, self.pause_btn, self.stop_btn, self.add_btn, self.another_btn, self.exit_btn, self.tree, self.subfolder_checkbox, self.subfolder_entry, self.confirm_subfolder_btn]):   
+        """
+        Periodically updates the download progress and status in the Treeview.
+        Also manages button states and status bar messages.
+        """
+        if not all([self.start_btn, self.pause_btn, self.stop_btn, self.add_btn, self.another_btn, 
+                    self.exit_btn, self.tree, self.subfolder_checkbox, self.subfolder_entry, self.confirm_subfolder_btn]):   
             self.root.after(self.update_interval, self.update_download_status)
             return
 
-        # Update active downloads
-        # Iterate over a copy of active_downloads to avoid "dictionary changed size" error
         for url, info in list(self.download_manager.active_downloads.items()): 
-            # We use the URL as the key for Treeview, so we can directly update using it.
             item_id = url 
             
-            if item_id in self.tree.get_children(): # Check if item still exists in treeview
+            if item_id in self.tree.get_children(): 
                 display_size = ""
                 display_progress_speed = ""   
                 status_text = ""
@@ -993,12 +1293,15 @@ class DownloaderApp:
                     display_progress_speed = f"{info['progress']:.1f}% ({self.download_manager.format_speed(info['speed'])})"
                     status_text = "Downloading" if not self.download_manager.pause_flag else "Paused"
                 else:   
-                    # If total size is unknown, show downloaded bytes
-                    display_size = f"{self.download_manager.format_size(info['downloaded_bytes'])} / Unknown"
-                    display_progress_speed = f"N/A ({self.download_manager.format_speed(info['speed'])})"
-                    status_text = "Downloading" if not self.download_manager.pause_flag else "Paused"
+                    if info['is_youtube']:
+                        display_size = "Unknown" 
+                        display_progress_speed = f"{info['progress']:.1f}% ({self.download_manager.format_speed(info['speed'])})" if info['progress'] > 0 else "N/A"
+                        status_text = f"Downloading (YouTube - {info.get('quality', 'Best')})" if not self.download_manager.pause_flag else f"Paused (YouTube - {info.get('quality', 'Best')})"
+                    else:
+                        display_size = f"{self.download_manager.format_size(info['downloaded_bytes'])} / Unknown"
+                        display_progress_speed = f"N/A ({self.download_manager.format_speed(info['speed'])})"
+                        status_text = "Downloading" if not self.download_manager.pause_flag else "Paused"
 
-                # Update the existing item in the Treeview
                 self.tree.item(item_id, values=(
                     info['filename'],   
                     display_size,
@@ -1006,14 +1309,12 @@ class DownloaderApp:
                     status_text
                 ))
         
-        # Process completed downloads
         while self.download_manager.completed_downloads:
             info = self.download_manager.completed_downloads.pop(0)
             completed_size_display = self.download_manager.format_size(info['size'])   
             
-            item_id = info['url'] # Use URL as item ID
+            item_id = info['url'] 
             
-            # Ensure we only update if the status isn't already 'Completed'
             if item_id in self.tree.get_children() and self.tree.item(item_id, 'values')[3] != "Completed":   
                 self.tree.item(item_id, values=(
                     info['filename'],
@@ -1022,12 +1323,10 @@ class DownloaderApp:
                     "Completed"   
                 ))
                 
-        # Process failed downloads
         while self.download_manager.failed_downloads:
             info = self.download_manager.failed_downloads.pop(0)
-            item_id = info['url'] # Use URL as item ID
+            item_id = info['url'] 
             
-            # Ensure we only update if the status isn't already 'Error'
             if item_id in self.tree.get_children() and not self.tree.item(item_id, 'values')[3].startswith("Error"):   
                 self.tree.item(item_id, values=(
                     info['filename'],
@@ -1036,7 +1335,6 @@ class DownloaderApp:
                     f"Error: {info['error'][:30]}..."   
                 ))
         
-        # Update button states and status message based on overall download state
         if not self.download_manager.active_downloads and self.download_manager.download_queue.empty():
             if self.status_var.get() not in ["Ready", "All downloads finished.", "Stopping downloads.", "Ready for new downloads."]:
                 self.status_var.set("All downloads finished.")   
@@ -1048,7 +1346,6 @@ class DownloaderApp:
             self.exit_btn.config(state=tk.NORMAL)   
 
             self.subfolder_checkbox.config(state=tk.NORMAL)
-            # Re-enable subfolder entry/confirm if checkbox is checked
             if self.use_subfolder_var.get() == 1:   
                 self.subfolder_entry.config(state=tk.NORMAL)
                 self.confirm_subfolder_btn.config(state=tk.NORMAL)
@@ -1063,8 +1360,7 @@ class DownloaderApp:
             self.status_var.set("Queued, awaiting start...")
             self.start_btn.config(state=tk.NORMAL)   
         
-        # Ensure exit button state is updated based on download status
-        self.on_exit_button_leave(None)   # Call on_exit_button_leave to apply default colors/states
+        self.on_exit_button_leave(None) 
 
         self.root.after(self.update_interval, self.update_download_status)
 
