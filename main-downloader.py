@@ -235,6 +235,109 @@ class CustomFilenameDialog(tk.Toplevel):
         self.destroy()
 
 
+class BatchDownloadDialog(tk.Toplevel):
+    """A custom Tkinter Toplevel window for numbered batch download input."""
+    def __init__(self, parent, fonts, colors):
+        super().__init__(parent)
+        self.transient(parent)
+        self.grab_set()
+        self.title("Numbered Batch Download")
+        self.parent = parent
+        self.fonts = fonts
+        self.colors = colors
+        self.result = None # (template_url, start_num, end_num, num_digits_str)
+
+        parent.update_idletasks()
+        x = parent.winfo_x() + (parent.winfo_width() // 2) - (self.winfo_width() // 2)
+        y = parent.winfo_y() + (parent.winfo_height() // 2) - (self.winfo_height() // 2)
+        self.geometry(f"+{x}+{y}")
+        self.configure(bg=self.colors['bg_color'])
+
+        self.create_widgets()
+        self.protocol("WM_DELETE_WINDOW", self.cancel)
+        self.wait_window(self)
+
+    def create_widgets(self):
+        main_frame = ttk.Frame(self, style='TFrame', padding=15)
+        main_frame.pack(fill=tk.BOTH, expand=True)
+
+        # Template URL
+        ttk.Label(main_frame, text="Template URL (use # for numbers, e.g., http://site.com/image-#.jpg):", font=self.fonts['default']).pack(anchor=tk.W, pady=(0,2))
+        self.template_url_var = tk.StringVar()
+        self.template_entry = ttk.Entry(main_frame, textvariable=self.template_url_var, font=self.fonts['default'], width=60)
+        self.template_entry.pack(fill=tk.X, pady=(0,10))
+        self.template_entry.focus_set()
+
+        # Start Number
+        ttk.Label(main_frame, text="Start Number:", font=self.fonts['default']).pack(anchor=tk.W, pady=(0,2))
+        self.start_num_var = tk.StringVar(value="1")
+        self.start_num_entry = ttk.Entry(main_frame, textvariable=self.start_num_var, font=self.fonts['default'], width=10)
+        self.start_num_entry.pack(anchor=tk.W, pady=(0,5))
+
+        # End Number
+        ttk.Label(main_frame, text="End Number:", font=self.fonts['default']).pack(anchor=tk.W, pady=(0,2))
+        self.end_num_var = tk.StringVar(value="10")
+        self.end_num_entry = ttk.Entry(main_frame, textvariable=self.end_num_var, font=self.fonts['default'], width=10)
+        self.end_num_entry.pack(anchor=tk.W, pady=(0,10))
+
+        # Number of Digits for Padding
+        ttk.Label(main_frame, text="Number of Digits for Padding (e.g., 3 for '001', leave empty for no padding):", font=self.fonts['default']).pack(anchor=tk.W, pady=(0,2))
+        self.num_digits_var = tk.StringVar(value="")
+        self.num_digits_entry = ttk.Entry(main_frame, textvariable=self.num_digits_var, font=self.fonts['default'], width=10)
+        self.num_digits_entry.pack(anchor=tk.W, pady=(0,10))
+        ttk.Label(main_frame, text="Example: if URL is 'image-00#.jpg' and start number is 1, set digits to 3.", font=self.fonts['default'], foreground=self.colors['disabled_color_fg']).pack(anchor=tk.W)
+
+
+        # Buttons
+        button_frame = ttk.Frame(main_frame, style='TFrame')
+        button_frame.pack(pady=10)
+
+        ok_button = ttk.Button(button_frame, text="Generate & Add", command=self.ok, width=15)
+        ok_button.pack(side=tk.LEFT, padx=5)
+
+        cancel_button = ttk.Button(button_frame, text="Cancel", command=self.cancel, width=10)
+        cancel_button.pack(side=tk.LEFT, padx=5)
+
+    def ok(self):
+        template_url = self.template_url_var.get().strip()
+        start_num_str = self.start_num_var.get().strip()
+        end_num_str = self.end_num_var.get().strip()
+        num_digits_str = self.num_digits_var.get().strip()
+
+        if not template_url or '#' not in template_url:
+            messagebox.showwarning("Input Error", "Template URL must not be empty and must contain '#'.", parent=self)
+            return
+        
+        try:
+            start_num = int(start_num_str)
+            end_num = int(end_num_str)
+            if start_num > end_num:
+                messagebox.showwarning("Input Error", "Start Number cannot be greater than End Number.", parent=self)
+                return
+        except ValueError:
+            messagebox.showwarning("Input Error", "Start and End Numbers must be valid integers.", parent=self)
+            return
+        
+        if num_digits_str:
+            try:
+                num_digits = int(num_digits_str)
+                if num_digits <= 0:
+                     messagebox.showwarning("Input Error", "Number of Digits must be a positive integer.", parent=self)
+                     return
+            except ValueError:
+                messagebox.showwarning("Input Error", "Number of Digits must be a valid integer or left empty.", parent=self)
+                return
+        else:
+            num_digits = None
+
+        self.result = (template_url, start_num, end_num, num_digits)
+        self.destroy()
+
+    def cancel(self):
+        self.result = None
+        self.destroy()
+
+
 class DownloadManager:
     """Manages download operations, including handling queues, progress, and different download types."""
     def __init__(self):
@@ -353,15 +456,15 @@ class DownloadManager:
         # 'worst' is lowest quality
         # 'mp4' specific - could add others like 'webm', 'mp3' etc.
         format_string = "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best" # Default best mp4
-        if quality_setting == "best":
+        if quality_setting == "Best":
             format_string = "bestvideo+bestaudio/best"
-        elif quality_setting == "high":
+        elif quality_setting == "High (1080p)":
             format_string = "bestvideo[height<=1080][ext=mp4]+bestaudio[ext=m4a]/best[height<=1080][ext=mp4]/best"
-        elif quality_setting == "medium":
+        elif quality_setting == "Medium (720p)":
             format_string = "bestvideo[height<=720][ext=mp4]+bestaudio[ext=m4a]/best[height<=720][ext=mp4]/best"
-        elif quality_setting == "low":
+        elif quality_setting == "Low (480p)":
             format_string = "bestvideo[height<=480][ext=mp4]+bestaudio[ext=m4a]/best[height<=480][ext=mp4]/best"
-        elif quality_setting == "audio_only":
+        elif quality_setting == "Audio Only":
             format_string = "bestaudio[ext=m4a]/bestaudio" # mp3 might require ffmpeg post-processing
 
         command = [
@@ -560,7 +663,7 @@ class DownloadManager:
             
             start_time = time.time()
 
-            with requests.get(url, stream=True, headers=headers, timeout=10) as r: # Added timeout
+            with requests.get(url, stream=True, headers=headers, timeout=10) as r: 
                 r.raise_for_status()   
                 total_size = int(r.headers.get('content-length', 0)) 
                 self.active_downloads[url]['size'] = total_size   
@@ -620,9 +723,7 @@ class DownloadManager:
         self.pause_flag = False
         while not self.download_queue.empty() and not self.stop_flag:
             url, assigned_filename, save_path, is_youtube = self.download_queue.get()
-            # If it's a YouTube URL, pass the selected quality setting
             if is_youtube:
-                # Retrieve quality setting from the GUI (DownloaderApp instance)
                 quality_setting = DownloaderApp.get_instance().youtube_quality_var.get()
                 self.executor.submit(self.download_youtube_video, url, assigned_filename, save_path, quality_setting)
             else:
@@ -676,10 +777,30 @@ class DownloadManager:
         """Formats bytes per second into human-readable speed units."""
         return f"{DownloadManager.format_size(speed_bytes)}/s"
 
+    def generate_numbered_urls(self, template_url, start_num, end_num, num_digits=None):
+        """
+        Generates a list of URLs based on a template, start/end numbers, and padding.
+        Replaces '#' in the template with sequentially numbered values.
+        """
+        generated_urls = []
+        for i in range(start_num, end_num + 1):
+            if num_digits is not None:
+                # Format number with leading zeros (e.g., 1 -> 001 if num_digits=3)
+                num_str = str(i).zfill(num_digits)
+            else:
+                num_str = str(i)
+            
+            # Replace all occurrences of '#' in the template URL
+            # For simplicity, assuming '#' represents the sequential number.
+            # If multiple '#' exist, they will all be replaced.
+            generated_url = template_url.replace('#', num_str)
+            generated_urls.append(generated_url)
+        return generated_urls
+
 
 class DownloaderApp:
     """The main Tkinter application class for the Download Manager GUI."""
-    _instance = None # Class variable to hold the single instance
+    _instance = None # Class variable to hold the single instance (Singleton pattern)
 
     @staticmethod
     def get_instance():
@@ -688,14 +809,16 @@ class DownloaderApp:
 
     def __init__(self, root):
         if DownloaderApp._instance is not None:
+            # Raise an error if trying to create a second instance (enforces Singleton)
             raise Exception("DownloaderApp is a Singleton! Use DownloaderApp.get_instance()")
-        DownloaderApp._instance = self # Store the instance
+        DownloaderApp._instance = self # Store the single instance
 
         self.root = root
         self.root.title("Advanced Download Manager")   
         self.root.geometry("850x650")   
         self.root.resizable(True, True)   
 
+        # Define fonts, with fallbacks for cross-platform compatibility
         try:
             self.default_font = Font(family="Berlin Sans Demi", size=9)   
             self.heading_font = Font(family="Berlin Sans Demi", size=10, weight="bold")   
@@ -714,6 +837,7 @@ class DownloaderApp:
             'button': self.button_font   
         }
 
+        # Color palette definition for custom styling
         self.color_text_color = '#F7F8FF'
         self.color_bg_color = '#162B4A'
         self.color_accent_color = '#006EE5'
@@ -739,6 +863,7 @@ class DownloaderApp:
             'hover_color': self.color_hover_color,
         }
 
+        # Apply the custom theme to the root window
         try:
             CustomTheme.apply(root, self.fonts_dict)
         except Exception as e:
@@ -746,14 +871,15 @@ class DownloaderApp:
         
         self.download_manager = DownloadManager()
 
-        # YouTube Quality Variable
+        # YouTube Quality Variable and options for the menubar
         self.youtube_quality_options = ["Best", "High (1080p)", "Medium (720p)", "Low (480p)", "Audio Only"]
-        self.youtube_quality_var = tk.StringVar(value=self.youtube_quality_options[0]) # Default to "Best"
+        self.youtube_quality_var = tk.StringVar(value=self.youtube_quality_options[0]) # Default quality
 
-        self.create_widgets()   
-        self.create_menubar() # Create the menubar
+        self.create_widgets()   # Create the main GUI widgets
+        self.create_menubar()   # Create the menubar
 
-        self.update_interval = 500 
+        # Start periodic update of download status
+        self.update_interval = 500 # milliseconds
         self.root.after(self.update_interval, self.update_download_status)
 
     def create_menubar(self):
@@ -777,33 +903,65 @@ class DownloaderApp:
         for option in self.youtube_quality_options:
             quality_menu.add_radiobutton(label=option, variable=self.youtube_quality_var, value=option)
 
+        # New: Numbered Batch Download Option
+        options_menu.add_command(label="Numbered Batch Download...", command=self.create_batch_download_dialog)
+
     def on_exit_button_click_menu(self):
         """Wrapper for exit button click logic when called from menubar."""
-        self.on_exit_button_click(None) # Pass None as event object
+        # Calls the existing exit logic, passing None as event object since it's from menu
+        self.on_exit_button_click(None) 
+
+    def create_batch_download_dialog(self):
+        """Opens the dialog for numbered batch downloads."""
+        dialog = BatchDownloadDialog(self.root, self.fonts_dict, self.colors_dict)
+        if dialog.result:
+            template_url, start_num, end_num, num_digits = dialog.result
+            self.process_batch_urls(template_url, start_num, end_num, num_digits)
+
+    def process_batch_urls(self, template_url, start_num, end_num, num_digits):
+        """
+        Generates URLs based on batch download input and adds them to the main URL input and queue.
+        """
+        generated_urls = self.download_manager.generate_numbered_urls(
+            template_url, start_num, end_num, num_digits
+        )
+
+        if not generated_urls:
+            messagebox.showwarning("Batch Download", "No URLs were generated. Please check your input.", parent=self.root)
+            return
+
+        # Append generated URLs to the existing URL input area
+        current_urls_text = self.url_text.get("1.0", tk.END).strip()
+        if current_urls_text: # Add newline if there's already content
+            current_urls_text += "\n"
+        self.url_text.delete("1.0", tk.END) # Clear existing to write new set cleanly
+        self.url_text.insert("1.0", current_urls_text + "\n".join(generated_urls))
+        
+        messagebox.showinfo("Batch Download", f"Generated {len(generated_urls)} URLs and added them to the input list.", parent=self.root)
+        
+        # Automatically add the URLs to the queue and treeview
+        self.add_urls()
+
 
     def create_widgets(self):
         """Initializes and arranges all GUI widgets."""
-        # Header Frame
         header_frame = ttk.Frame(self.root, style='TFrame')
         header_frame.pack(fill=tk.X, pady=(2, 2), padx=5)   
         
         ttk.Label(header_frame, text="Advanced Download Manager - created by Nima-Ghaffari",   
                   font=self.large_heading_font, anchor=tk.CENTER).pack(fill=tk.X)
 
-        # Main Content Frame, set up with grid for flexible layout
         main_content_frame = ttk.Frame(self.root, style='TFrame', padding=2)   
         main_content_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=2)   
         main_content_frame.grid_columnconfigure(0, weight=1)   
-        main_content_frame.grid_rowconfigure(3, weight=1) # Allow Treeview to expand
+        main_content_frame.grid_rowconfigure(3, weight=1) 
 
-        # URL Input Section
         ttk.Label(main_content_frame, text="URL Input", font=self.heading_font, anchor=tk.W, style='DownloadsHeading.TLabel').grid(row=0, column=0, sticky='w', padx=5, pady=(2,0))   
 
         input_container_frame = ttk.Frame(main_content_frame, style='TFrame', padding=5, relief='solid', borderwidth=1)   
         input_container_frame.grid(row=1, column=0, sticky='nsew', pady=(0,2))   
         input_container_frame.grid_columnconfigure(0, weight=1)
 
-        # Save Path Frame within input container
         save_path_frame = ttk.Frame(input_container_frame, style='TFrame')   
         save_path_frame.pack(fill=tk.X, pady=(0,2))   
         save_path_frame.grid_columnconfigure(1, weight=1)
@@ -814,12 +972,10 @@ class DownloaderApp:
         self.path_entry.pack(side=tk.LEFT, expand=True, fill=tk.X, padx=(0,2))   
         ttk.Button(save_path_frame, text="Browse", command=self.browse_path, width=8).pack(side=tk.LEFT)
 
-        # Scrolled Text for URL input
         ttk.Label(input_container_frame, text="Enter URLs (one per line):", font=self.default_font).pack(anchor=tk.W, pady=(2,2))   
         self.url_text = scrolledtext.ScrolledText(input_container_frame, height=6, wrap=tk.WORD, font=self.default_font, undo=True)
         self.url_text.pack(fill=tk.BOTH, expand=True, pady=(0, 2))   
 
-        # Buttons related to URL input and naming
         input_buttons_frame = ttk.Frame(input_container_frame, style='TFrame')   
         input_buttons_frame.pack(fill=tk.X, pady=(0,2), anchor=tk.W)   
         
@@ -831,7 +987,6 @@ class DownloaderApp:
         ttk.Button(input_buttons_frame, text="Set Names", command=self.set_filenames, width=fixed_button_width).pack(side=tk.LEFT, padx=(0,1))   
         ttk.Button(input_buttons_frame, text="Reset Names", command=self.reset_filenames, width=fixed_button_width).pack(side=tk.LEFT, padx=(0,1))   
 
-        # Subfolder Option (using tk.Checkbutton for more direct styling control)
         self.use_subfolder_var = tk.IntVar(value=0)
         self.subfolder_var = tk.StringVar(value="")
 
@@ -871,7 +1026,6 @@ class DownloaderApp:
         )
         self.confirm_subfolder_btn.pack(side=tk.LEFT, padx=(0,0))   
 
-        # Downloads List (Treeview)
         ttk.Label(main_content_frame, text="Downloads", font=self.heading_font, anchor=tk.W, style='DownloadsHeading.TLabel').grid(row=2, column=0, sticky='w', padx=5, pady=(2,0))   
 
         downloads_list_container_frame = ttk.Frame(main_content_frame, style='TFrame', padding=5, relief='solid', borderwidth=1)   
@@ -899,7 +1053,6 @@ class DownloaderApp:
         y_scroll.grid(row=0, column=1, sticky='ns')
         x_scroll.grid(row=1, column=0, sticky='ew')
 
-        # Control Buttons Frame (Left Side)
         left_control_buttons_frame = ttk.Frame(self.root, style='TFrame', padding=(2, 2))   
         left_control_buttons_frame.pack(side=tk.LEFT, anchor=tk.SW, padx=5, pady=(2, 5))   
 
@@ -915,7 +1068,6 @@ class DownloaderApp:
         self.another_btn = ttk.Button(left_control_buttons_frame, text="Clear All", command=self.clear_all_content, width=fixed_button_width)   
         self.another_btn.pack(side=tk.LEFT, padx=(0,1))   
 
-        # Control Buttons Frame (Right Side) - Exit Button
         right_control_buttons_frame = ttk.Frame(self.root, style='TFrame', padding=(2, 2))   
         right_control_buttons_frame.pack(side=tk.RIGHT, anchor=tk.SE, padx=5, pady=(2, 5))   
 
@@ -939,7 +1091,6 @@ class DownloaderApp:
         self.exit_btn.bind("<Leave>", self.on_exit_button_leave)
         self.exit_btn.bind("<Button-1>", self.on_exit_button_click)   
 
-        # Status Bar at the bottom
         self.status_var = tk.StringVar()
         self.status_var.set("Ready")   
         ttk.Label(self.root, textvariable=self.status_var, style='TStatus.TLabel').pack(fill=tk.X, pady=(0,0), padx=5)   
@@ -1090,7 +1241,6 @@ class DownloaderApp:
         Also, prepares the download queue with final filenames and save paths.
         This function determines if a URL is YouTube or not and assigns filenames.
         """
-        # Clear existing items in Treeview
         for item in self.tree.get_children():
             self.tree.delete(item)
         
