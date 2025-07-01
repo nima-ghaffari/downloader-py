@@ -2,7 +2,7 @@ import os
 import requests
 import time
 import math
-from concurrent.futures import ThreadPoolExecutor, as_completed
+from concurrent.futures import ThreadPoolExecutor
 from urllib.parse import urlparse, unquote
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox, scrolledtext
@@ -62,7 +62,7 @@ class CustomTheme:
                         background=accent_color, 
                         foreground=text_color,  
                         bordercolor=border_color, 
-                        relief='solid',      
+                        relief='solid',     
                         borderwidth=1,
                         font=fonts['heading'])  
         style.map('TLabelFrame', background=[('active', accent_color)])  
@@ -98,14 +98,14 @@ class CustomTheme:
         root.option_add('*Scrolledtext*borderwidth', 1)
         root.option_add('*Scrolledtext*relief', 'solid')
         root.option_add('*Scrolledtext*highlightbackground', border_color)  
-        root.option_add('*Scrolledtext*highlightcolor', accent_color)  
+        root.option_add('*Scrolledtext*highlightcolor', accent_color)   
 
         style.configure('Treeview',
                         background=entry_field_bg,   
                         foreground=entry_text_color,   
                         fieldbackground=entry_field_bg,
                         bordercolor=border_color,   
-                        relief='solid',   
+                        relief='solid',    
                         borderwidth=1,
                         padding=3)
         style.map('Treeview',
@@ -185,7 +185,7 @@ class CustomFilenameDialog(tk.Toplevel):
     def create_widgets(self, prompt_text, initial_value):
         # Prompt Label
         prompt_label = tk.Label(self, text=prompt_text, font=self.fonts['default'], 
-                                    fg=self.colors['text_color'], bg=self.colors['bg_color'], pady=10)
+                                 fg=self.colors['text_color'], bg=self.colors['bg_color'], pady=10)
         prompt_label.pack(padx=10, pady=5)
 
         # Entry for filename
@@ -217,13 +217,13 @@ class CustomFilenameDialog(tk.Toplevel):
 class DownloadManager:
     def __init__(self):
         self.download_queue = Queue()   
-        self.active_downloads = {}      
+        self.active_downloads = {}       
         self.completed_downloads = []   
-        self.failed_downloads = []      
-        self.stop_flag = False          
-        self.pause_flag = False         
-        self.custom_filenames = {}      
-        self.batch_filename_prefix = None       
+        self.failed_downloads = []       
+        self.stop_flag = False           
+        self.pause_flag = False          
+        self.custom_filenames = {}       
+        self.batch_filename_prefix = None        
         self.executor = ThreadPoolExecutor(max_workers=5)   
 
     def set_custom_filename(self, url, filename):
@@ -232,12 +232,12 @@ class DownloadManager:
     def set_batch_filename_prefix(self, prefix):
         self.batch_filename_prefix = prefix
 
-    def add_to_queue(self, urls_with_assigned_filenames, save_path):
+    def add_to_queue(self, urls_with_assigned_filenames_and_paths):
         """
         Adds URLs to the queue, expecting a list of (url, assigned_filename, save_path) tuples.
         The assigned_filename is what will be used for saving.
         """
-        for url, assigned_filename in urls_with_assigned_filenames:
+        for url, assigned_filename, save_path in urls_with_assigned_filenames_and_paths:
             self.download_queue.put((url, assigned_filename, save_path))
 
     def get_proper_extension(self, url):
@@ -273,7 +273,7 @@ class DownloadManager:
         try:
             # Use requests.head to get content type without downloading the whole file
             response = requests.head(url, allow_redirects=True, timeout=3)
-            response.raise_for_status()  
+            response.raise_for_status()   
             content_type = response.headers.get('Content-Type', '').lower()
             
             if 'video/mp4' in content_type: return '.mp4'
@@ -300,7 +300,8 @@ class DownloadManager:
     def download_file(self, url, filename, save_path):
         filepath = ""   
         try:
-            filepath = os.path.join(save_path, filename)
+            # Crucially, join save_path and filename here
+            filepath = os.path.join(save_path, filename) 
 
             if os.path.exists(filepath):
                 return {'status': 'exists', 'filename': filename, 'url': url}
@@ -370,13 +371,13 @@ class DownloadManager:
     def start_downloads(self):
         self.stop_flag = False
         self.pause_flag = False
-            
-        futures = []
+        # Remove futures = [] and as_completed loop; the downloads are initiated directly by fetching from queue
         while not self.download_queue.empty() and not self.stop_flag:
             url, assigned_filename, save_path = self.download_queue.get()
-            futures.append(self.executor.submit(self.download_file, url, assigned_filename, save_path))
+            self.executor.submit(self.download_file, url, assigned_filename, save_path)
         
-        pass   
+        # This pass statement is no longer needed but kept for structural clarity if desired.
+        pass    
 
     def pause_downloads(self):
         self.pause_flag = True
@@ -618,13 +619,13 @@ class DownloaderApp:
         right_control_buttons_frame.pack(side=tk.RIGHT, anchor=tk.SE, padx=5, pady=(2, 5))   
 
         self.exit_btn = tk.Button(right_control_buttons_frame, text="Exit",   
-                                    font=self.fonts_dict['button'],   
-                                    width=fixed_button_width,   
-                                    bg=self.color_accent_color,   
-                                    fg=self.color_button_text_color,
-                                    relief=tk.FLAT, borderwidth=0, padx=10, pady=5,
-                                    activebackground=self.color_hover_color,   
-                                    activeforeground=self.color_button_text_color)
+                                 font=self.fonts_dict['button'],   
+                                 width=fixed_button_width,   
+                                 bg=self.color_accent_color,   
+                                 fg=self.color_button_text_color,
+                                 relief=tk.FLAT, borderwidth=0, padx=10, pady=5,
+                                 activebackground=self.color_hover_color,   
+                                 activeforeground=self.color_button_text_color)
 
         self.exit_btn.pack(side=tk.RIGHT)
         
@@ -667,10 +668,10 @@ class DownloaderApp:
 
             sanitized_name = "".join(c for c in subfolder_name if c.isalnum() or c in (' ', '.', '_', '-')).strip()
             if not sanitized_name:
-                    messagebox.showwarning("Warning", "Invalid subfolder name. Please use alphanumeric characters, spaces, dots, underscores, or hyphens.", parent=self.root)
-                    self.subfolder_entry.config(style='TEntry.Error')
-                    self.root.after(1000, lambda: self.subfolder_entry.config(style='TEntry'))
-                    return
+                messagebox.showwarning("Warning", "Invalid subfolder name. Please use alphanumeric characters, spaces, dots, underscores, or hyphens.", parent=self.root)
+                self.subfolder_entry.config(style='TEntry.Error')
+                self.root.after(1000, lambda: self.subfolder_entry.config(style='TEntry'))
+                return
             
             self.subfolder_entry.config(style='TEntry.Success')   
             self.status_var.set(f"Subfolder '{sanitized_name}' confirmed.")
@@ -683,31 +684,31 @@ class DownloaderApp:
     def on_exit_button_hover(self, event):
         if self.download_manager.active_downloads:
             self.exit_btn.config(bg=self.exit_red_hover, fg=self.exit_white_text,   
-                                     activebackground=self.exit_red_hover, activeforeground=self.exit_white_text)
+                                         activebackground=self.exit_red_hover, activeforeground=self.exit_white_text)
         elif not self.download_manager.download_queue.empty():
             self.exit_btn.config(bg=self.exit_yellow_hover, fg=self.exit_dark_text_on_yellow,   
-                                     activebackground=self.exit_yellow_hover, activeforeground=self.exit_dark_text_on_yellow)
+                                         activebackground=self.exit_yellow_hover, activeforeground=self.exit_dark_text_on_yellow)
         else:
             self.exit_btn.config(bg=self.exit_default_active_bg, fg=self.exit_default_active_fg,   
-                                     activebackground=self.exit_default_active_bg, activeforeground=self.exit_default_active_fg)
+                                         activebackground=self.exit_default_active_bg, activeforeground=self.exit_default_active_fg)
 
     def on_exit_button_leave(self, event):
         self.exit_btn.config(bg=self.exit_default_bg_color, fg=self.exit_default_fg_color,   
-                                 activebackground=self.exit_default_active_bg, activeforeground=self.exit_default_active_fg)
+                                     activebackground=self.exit_default_active_bg, activeforeground=self.exit_default_active_fg)
 
 
     def on_exit_button_click(self, event):
         if self.download_manager.active_downloads:
             response = messagebox.askyesno("Confirm Exit",   
-                                            "Downloads are in progress. Do you want to stop all downloads and exit?",
-                                            parent=self.root, icon='warning')
+                                           "Downloads are in progress. Do you want to stop all downloads and exit?",
+                                           parent=self.root, icon='warning')
             if response:
                 self.download_manager.stop_all_downloads()
                 self.root.quit()   
         elif not self.download_manager.download_queue.empty():
             response = messagebox.askyesno("Confirm Exit",   
-                                            "There are pending downloads in the queue. Do you want to clear the queue and exit?",
-                                            parent=self.root, icon='question')
+                                           "There are pending downloads in the queue. Do you want to clear the queue and exit?",
+                                           parent=self.root, icon='question')
             if response:
                 self.download_manager.stop_all_downloads()   
                 # Clear the queue fully
@@ -730,9 +731,9 @@ class DownloaderApp:
 
         # Always ask for a base name for the new sequential numbering
         dialog = CustomFilenameDialog(self.root, "Set Base Filename", 
-                                         "Enter base name for files (e.g., 'MyMovie'):", 
-                                         "MyFile", # Default suggestion
-                                         self.fonts_dict, self.colors_dict)
+                                             "Enter base name for files (e.g., 'MyMovie'):", 
+                                             "MyFile", # Default suggestion
+                                             self.fonts_dict, self.colors_dict)
         base_name = dialog.result
         
         if base_name:
@@ -763,9 +764,9 @@ class DownloaderApp:
                 default_name += ext
 
             dialog = CustomFilenameDialog(self.root, "Edit Filename",
-                                             f"Enter name for:\n{url}", 
-                                             default_name,
-                                             self.fonts_dict, self.colors_dict)
+                                                 f"Enter name for:\n{url}", 
+                                                 default_name,
+                                                 self.fonts_dict, self.colors_dict)
             new_name = dialog.result
 
             if new_name:
@@ -795,6 +796,14 @@ class DownloaderApp:
         # New: Dictionary to store the next counter for each extension
         extension_counters = {} 
 
+        base_save_path = self.save_path_var.get()
+        final_save_path = base_save_path
+
+        if self.use_subfolder_var.get() == 1:   
+            subfolder_name = self.subfolder_var.get().strip()
+            if subfolder_name: # Only create subfolder path if a valid name is entered
+                final_save_path = os.path.join(base_save_path, subfolder_name)
+            
         for url in urls:
             filename_to_display = ""
             assigned_filename_for_queue = ""
@@ -825,13 +834,13 @@ class DownloaderApp:
 
             # Use URL as item ID for robust updating in update_download_status
             self.tree.insert('', 'end', values=(filename_to_display, '', '0%', 'Ready'), iid=url) 
-            processed_urls_for_queue.append((url, assigned_filename_for_queue))
+            # Crucial change: pass the determined final_save_path for *each* URL
+            processed_urls_for_queue.append((url, assigned_filename_for_queue, final_save_path))
         
-        # Clear the queue and add the processed URLs with their assigned filenames
-        # This ensures the order and names are consistent with the Treeview preview
+        # Clear the queue and add the processed URLs with their assigned filenames and save paths
         with self.download_manager.download_queue.mutex:
             self.download_manager.download_queue.queue.clear()
-        self.download_manager.add_to_queue(processed_urls_for_queue, self.save_path_var.get())
+        self.download_manager.add_to_queue(processed_urls_for_queue)
 
     def browse_path(self):
         path = filedialog.askdirectory(parent=self.root)
@@ -867,10 +876,10 @@ class DownloaderApp:
             
             sanitized_name = "".join(c for c in subfolder_name if c.isalnum() or c in (' ', '.', '_', '-')).strip()
             if not sanitized_name:
-                    messagebox.showwarning("Warning", "Invalid subfolder name. Please use alphanumeric characters, spaces, dots, underscores, or hyphens.", parent=self.root)
-                    self.subfolder_entry.config(style='TEntry.Error')
-                    self.root.after(1000, lambda: self.subfolder_entry.config(style='TEntry'))
-                    return
+                messagebox.showwarning("Warning", "Invalid subfolder name. Please use alphanumeric characters, spaces, dots, underscores, or hyphens.", parent=self.root)
+                self.subfolder_entry.config(style='TEntry.Error')
+                self.root.after(1000, lambda: self.subfolder_entry.config(style='TEntry'))
+                return
             
             final_save_path = os.path.join(base_save_path, sanitized_name)   
         
@@ -882,7 +891,7 @@ class DownloaderApp:
                 return
         
         # Call update_treeview_filenames to process names and populate the queue
-        # This will also update the download_manager.download_queue with the correct filenames
+        # This will also update the download_manager.download_queue with the correct filenames AND correct save paths
         self.update_treeview_filenames() 
         
         self.url_text.delete("1.0", tk.END)   
