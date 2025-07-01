@@ -20,7 +20,7 @@ class CustomTheme:
         entry_field_bg = '#D7E5FF'
         entry_text_color = bg_color
         
-        button_text_color_ttk = '#FFFFFF'
+        button_text_color = '#FFFFFF' # Consolidated white text for all buttons
         
         border_color = bg_color
         
@@ -38,43 +38,56 @@ class CustomTheme:
         else:
             style.theme_use('default')
 
-        style.configure('.', font=fonts['default']) 
+        style.configure('.', font=fonts['default'])  
 
         root.configure(bg=bg_color)
 
         style.configure('TFrame', background=bg_color)
         style.configure('TLabel', background=bg_color, foreground=text_color)
         
+        style.configure('TCheckbutton', 
+                        font=fonts['default'], 
+                        background=bg_color, 
+                        foreground=text_color, 
+                        indicatoron=True, 
+                        padding=3)
+        style.map('TCheckbutton',
+                  background=[('active', bg_color)], 
+                  foreground=[('disabled', disabled_color_fg)])
+        
+        style.configure('TEntry.Error', fieldbackground='#FF6347', foreground='white')  
+        style.configure('TEntry.Success', fieldbackground='#8BC34A', foreground='white')  
+        
         style.configure('TLabelFrame', 
                         background=accent_color, 
                         foreground=text_color,   
                         bordercolor=border_color, 
-                        relief='solid',          
+                        relief='solid',           
                         borderwidth=1,
-                        font=fonts['heading']) 
-        style.map('TLabelFrame', background=[('active', accent_color)]) 
+                        font=fonts['heading'])  
+        style.map('TLabelFrame', background=[('active', accent_color)])  
         
         style.configure('TButton', 
                         background=accent_color,
-                        foreground=button_text_color_ttk, 
-                        padding=[10, 5], 
-                        relief='flat',   
-                        bordercolor=accent_color, 
+                        foreground=button_text_color, # Use consolidated button text color
+                        padding=[10, 5],  
+                        relief='flat',    
+                        bordercolor=accent_color,  
                         focusthickness=0,
-                        font=fonts['button']) 
+                        font=fonts['button'])  
         style.map('TButton',
-                  background=[('active', hover_color), ('disabled', disabled_color_bg)], 
-                  foreground=[('disabled', disabled_color_fg)]) 
+                  background=[('active', hover_color), ('disabled', disabled_color_bg)],  
+                  foreground=[('disabled', disabled_color_fg)])  
 
         style.configure('TEntry',
-                        fieldbackground=entry_field_bg, 
-                        foreground=entry_text_color,   
-                        insertbackground=entry_text_color, 
-                        selectbackground=selected_item_bg, 
-                        selectforeground=selected_item_text, 
-                        bordercolor=border_color, 
+                        fieldbackground=entry_field_bg,  
+                        foreground=entry_text_color,    
+                        insertbackground=entry_text_color,  
+                        selectbackground=selected_item_bg,  
+                        selectforeground=selected_item_text,  
+                        bordercolor=border_color,  
                         relief='solid',
-                        borderwidth=1, 
+                        borderwidth=1,  
                         padding=5)
         
         root.option_add('*Scrolledtext*background', entry_field_bg)
@@ -84,77 +97,135 @@ class CustomTheme:
         root.option_add('*Scrolledtext*selectForeground', selected_item_text)
         root.option_add('*Scrolledtext*borderwidth', 1)
         root.option_add('*Scrolledtext*relief', 'solid')
-        root.option_add('*Scrolledtext*highlightbackground', border_color) 
-        root.option_add('*Scrolledtext*highlightcolor', accent_color) 
+        root.option_add('*Scrolledtext*highlightbackground', border_color)  
+        root.option_add('*Scrolledtext*highlightcolor', accent_color)  
 
         style.configure('Treeview',
-                        background=entry_field_bg, 
-                        foreground=entry_text_color, 
+                        background=entry_field_bg,  
+                        foreground=entry_text_color,  
                         fieldbackground=entry_field_bg,
-                        bordercolor=border_color, 
-                        relief='solid', 
+                        bordercolor=border_color,  
+                        relief='solid',  
                         borderwidth=1,
                         padding=3)
         style.map('Treeview',
-                  background=[('selected', selected_item_bg)], 
-                  foreground=[('selected', selected_item_text)]) 
+                  background=[('selected', selected_item_bg)],  
+                  foreground=[('selected', selected_item_text)])  
 
         style.configure('Treeview.Heading',
-                        background=accent_color, 
-                        foreground=text_color,   
+                        background=accent_color,  
+                        foreground=text_color,    
                         relief='flat',
                         padding=5,
-                        font=fonts['heading']) 
+                        font=fonts['heading'])  
         style.map('Treeview.Heading',
-                  background=[('active', hover_color)]) 
+                  background=[('active', hover_color)])  
 
-        style.configure('TStatus.TLabel', 
-                        background=bg_color, 
-                        foreground=text_color, 
-                        relief='sunken', 
-                        padding=[5,2], 
-                        anchor='w') 
+        style.configure('TStatus.TLabel',  
+                        background=bg_color,  
+                        foreground=text_color,  
+                        relief='sunken',  
+                        padding=[5,2],  
+                        anchor='w')  
 
         style.configure('DownloadsHeading.TLabel',
-                        background=bg_color, 
-                        foreground=text_color, 
-                        font=fonts['heading'], 
-                        padding=(0, 5, 0, 2)) 
+                        background=bg_color,  
+                        foreground=text_color,  
+                        font=fonts['heading'],  
+                        padding=(0, 5, 0, 2))  
 
         style.configure("TScrollbar",
-                        troughcolor=bg_color, 
-                        background=accent_color, 
-                        bordercolor=bg_color, 
-                        arrowcolor=text_color, 
-                        relief='flat', 
-                        borderwidth=0) 
+                        troughcolor=bg_color,  
+                        background=accent_color,  
+                        bordercolor=bg_color,  
+                        arrowcolor=text_color,  
+                        relief='flat',  
+                        borderwidth=0)  
 
         style.map("TScrollbar",
                   background=[('active', hover_color), ('!disabled', accent_color)],
                   troughcolor=[('active', bg_color)],
                   arrowcolor=[('active', 'white')])
 
-        root.option_add('*Toplevel*background', bg_color) 
+        # Apply styles to Toplevel, Dialog, Message for consistency
+        root.option_add('*Toplevel*background', bg_color)  
         root.option_add('*Dialog*background', bg_color)
         root.option_add('*Dialog*foreground', text_color)
         root.option_add('*Message*background', bg_color)
         root.option_add('*Message*foreground', text_color)
-        root.option_add('*Button*background', accent_color) 
-        root.option_add('*Button*foreground', button_text_color_ttk)
-        style.configure('Dialog.TButton', background=accent_color, foreground=button_text_color_ttk) 
+        root.option_add('*Button*background', accent_color)  
+        root.option_add('*Button*foreground', button_text_color) # Use consolidated button text color
+        style.configure('Dialog.TButton', background=accent_color, foreground=button_text_color) # Use consolidated button text color
+
+# Custom Dialog for filename input to allow styling
+class CustomFilenameDialog(tk.Toplevel):
+    def __init__(self, parent, title, prompt_text, initial_value, fonts, colors):
+        super().__init__(parent)
+        self.transient(parent)
+        self.grab_set()
+        self.title(title)
+        self.parent = parent
+        self.result = None
+        self.fonts = fonts
+        self.colors = colors
+
+        # Center the dialog
+        parent.update_idletasks()
+        x = parent.winfo_x() + (parent.winfo_width() // 2) - (self.winfo_width() // 2)
+        y = parent.winfo_y() + (parent.winfo_height() // 2) - (self.winfo_height() // 2)
+        self.geometry(f"+{x}+{y}")
+        
+        self.configure(bg=self.colors['bg_color']) # Set background for the Toplevel itself
+
+        self.create_widgets(prompt_text, initial_value)
+
+        self.protocol("WM_DELETE_WINDOW", self.cancel)
+        self.wait_window(self)
+
+    def create_widgets(self, prompt_text, initial_value):
+        # Prompt Label
+        prompt_label = tk.Label(self, text=prompt_text, font=self.fonts['default'], 
+                                fg=self.colors['text_color'], bg=self.colors['bg_color'], pady=10)
+        prompt_label.pack(padx=10, pady=5)
+
+        # Entry for filename
+        self.entry_var = tk.StringVar(value=initial_value)
+        self.entry = ttk.Entry(self, textvariable=self.entry_var, font=self.fonts['default'], width=50)
+        self.entry.pack(padx=10, pady=5, fill=tk.X)
+        self.entry.bind("<Return>", lambda event: self.ok())
+        self.entry.focus_set()
+
+        # Buttons frame
+        button_frame = ttk.Frame(self, style='TFrame')
+        button_frame.pack(pady=10)
+
+        ok_button = ttk.Button(button_frame, text="OK", command=self.ok, width=10)
+        ok_button.pack(side=tk.LEFT, padx=5)
+
+        cancel_button = ttk.Button(button_frame, text="Cancel", command=self.cancel, width=10)
+        cancel_button.pack(side=tk.LEFT, padx=5)
+
+    def ok(self):
+        self.result = self.entry_var.get()
+        self.destroy()
+
+    def cancel(self):
+        self.result = None
+        self.destroy()
+
 
 class DownloadManager:
     def __init__(self):
-        self.download_queue = Queue() 
+        self.download_queue = Queue()  
         self.active_downloads = {}    
-        self.completed_downloads = [] 
+        self.completed_downloads = []  
         self.failed_downloads = []    
-        self.stop_flag = False        
-        self.pause_flag = False       
+        self.stop_flag = False          
+        self.pause_flag = False        
         self.custom_filenames = {}    
-        self.batch_filename = None    
-        self.file_counter = 1         
-        self.executor = ThreadPoolExecutor(max_workers=5) 
+        self.batch_filename = None      
+        self.file_counter = 1          
+        self.executor = ThreadPoolExecutor(max_workers=5)  
 
     def set_custom_filename(self, url, filename):
         self.custom_filenames[url] = filename
@@ -170,7 +241,7 @@ class DownloadManager:
     def get_sequential_filename(self, url):
         ext = self.get_proper_extension(url)
         if self.batch_filename:
-            filename = f"{self.batch_filename}_{self.file_counter:03d}{ext}" 
+            filename = f"{self.batch_filename}_{self.file_counter:03d}{ext}"  
             self.file_counter += 1
             return filename
         else:
@@ -181,12 +252,12 @@ class DownloadManager:
         path = parsed_url.path
         
         _, ext_from_path = os.path.splitext(path)
-        if ext_from_path and len(ext_from_path) <= 5 and '.' in ext_from_path: 
+        if ext_from_path and len(ext_from_path) <= 5 and '.' in ext_from_path:  
             return ext_from_path.lower()
 
         url_lower = url.lower()
         
-        if 'mp4' in url_lower and not 'mp4.' in url_lower: return '.mp4' 
+        if 'mp4' in url_lower and not 'mp4.' in url_lower: return '.mp4'  
         if 'avi' in url_lower and not 'avi.' in url_lower: return '.avi'
         if 'mov' in url_lower and not 'mov.' in url_lower: return '.mov'
         if 'mkv' in url_lower and not 'mkv.' in url_lower: return '.mkv'
@@ -203,14 +274,14 @@ class DownloadManager:
 
         try:
             response = requests.head(url, allow_redirects=True, timeout=3)
-            response.raise_for_status() 
+            response.raise_for_status()  
             content_type = response.headers.get('Content-Type', '').lower()
             
             if 'video/mp4' in content_type: return '.mp4'
             elif 'video/webm' in content_type: return '.webm'
-            elif 'video/' in content_type: return '.mp4' 
+            elif 'video/' in content_type: return '.mp4'  
             elif 'audio/mpeg' in content_type: return '.mp3'
-            elif 'audio/' in content_type: return '.mp3' 
+            elif 'audio/' in content_type: return '.mp3'  
             elif 'text/vtt' in content_type: return '.vtt'
             elif 'application/x-subrip' in content_type or 'text/srt' in content_type: return '.srt'
             elif 'image/jpeg' in content_type: return '.jpg'
@@ -223,13 +294,13 @@ class DownloadManager:
             elif 'text/csv' in content_type: return '.csv'
             
         except requests.exceptions.RequestException:
-            pass 
+            pass  
 
         return '.bin'
 
     def download_file(self, url, save_path):
-        filename = "" 
-        filepath = "" 
+        filename = ""  
+        filepath = ""  
         try:
             if url in self.custom_filenames:
                 filename = self.custom_filenames[url]
@@ -258,36 +329,36 @@ class DownloadManager:
             start_time = time.time()
 
             with requests.get(url, stream=True, headers=headers) as r:
-                r.raise_for_status() 
+                r.raise_for_status()  
                 total_size = int(r.headers.get('content-length', 0))
-                self.active_downloads[url]['size'] = total_size 
+                self.active_downloads[url]['size'] = total_size  
 
                 downloaded_bytes = 0
                 self.active_downloads[url]['downloaded_bytes'] = downloaded_bytes
                 
                 with open(filepath, 'wb') as f:
-                    for chunk in r.iter_content(chunk_size=8192): 
+                    for chunk in r.iter_content(chunk_size=8192):  
                         if self.stop_flag:
                             if os.path.exists(filepath): os.remove(filepath)
                             return {'status': 'stopped', 'filename': filename, 'url': url}
                         if self.pause_flag:
                             while self.pause_flag and not self.stop_flag:
-                                time.sleep(0.1) 
+                                time.sleep(0.1)  
                             if self.stop_flag:
                                 if os.path.exists(filepath): os.remove(filepath)
                                 return {'status': 'stopped', 'filename': filename, 'url': url}
                         
-                        if chunk: 
+                        if chunk:  
                             f.write(chunk)
                             
-                            downloaded_bytes = f.tell() 
+                            downloaded_bytes = f.tell()  
                             elapsed_time = time.time() - start_time
                             download_speed = downloaded_bytes / (elapsed_time + 0.0001) if elapsed_time > 0 else 0
                             progress = (downloaded_bytes / total_size) * 100 if total_size > 0 else 0
                             
                             self.active_downloads[url]['progress'] = progress
                             self.active_downloads[url]['speed'] = download_speed
-                            self.active_downloads[url]['downloaded_bytes'] = downloaded_bytes 
+                            self.active_downloads[url]['downloaded_bytes'] = downloaded_bytes  
 
             download_info = {
                 'status': 'completed', 'filename': filename, 'url': url,
@@ -296,8 +367,8 @@ class DownloadManager:
             self.completed_downloads.append(download_info)
             self.active_downloads.pop(url, None)
             
-            if download_info['size'] == 0: 
-                download_info['size'] = downloaded_bytes 
+            if download_info['size'] == 0:  
+                download_info['size'] = downloaded_bytes  
 
             return download_info
             
@@ -307,7 +378,7 @@ class DownloadManager:
             }
             self.failed_downloads.append(error_info)
             self.active_downloads.pop(url, None)
-            if os.path.exists(filepath): 
+            if os.path.exists(filepath):  
                 os.remove(filepath)
             return error_info
 
@@ -319,7 +390,7 @@ class DownloadManager:
             url, save_path = self.download_queue.get()
             futures.append(self.executor.submit(self.download_file, url, save_path))
         
-        pass 
+        pass  
 
     def pause_downloads(self):
         self.pause_flag = True
@@ -357,102 +428,175 @@ class DownloadManager:
 class DownloaderApp:
     def __init__(self, root):
         self.root = root
-        self.root.title("Advanced Download Manager") 
-        self.root.geometry("850x650") 
-        self.root.resizable(True, True) 
+        self.root.title("Advanced Download Manager")  
+        self.root.geometry("850x650")  
+        self.root.resizable(True, True)  
 
         try:
-            self.default_font = Font(family="Segoe UI", size=9)
-            self.heading_font = Font(family="Segoe UI", size=10, weight="bold")
-            self.large_heading_font = Font(family="Segoe UI", size=12, weight="bold")
-            self.button_font = Font(family="Berlin Sans Demi", size=10, weight="bold") 
+            self.default_font = Font(family="Berlin Sans Demi", size=9)  
+            self.heading_font = Font(family="Berlin Sans Demi", size=10, weight="bold")  
+            self.large_heading_font = Font(family="Berlin Sans Demi", size=12, weight="bold")  
+            self.button_font = Font(family="Berlin Sans Demi", size=10, weight="bold")  
         except:
-            self.default_font = Font(family="Tahoma", size=9)
-            self.heading_font = Font(family="Tahoma", size=10, weight="bold")
-            self.large_heading_font = Font(family="Tahoma", size=12, weight="bold")
-            self.button_font = Font(family="Segoe UI Semibold", size=10, weight="bold") 
+            self.default_font = Font(family="Segoe UI", size=9)  
+            self.heading_font = Font(family="Segoe UI", size=10, weight="bold")  
+            self.large_heading_font = Font(family="Segoe UI", size=12, weight="bold")  
+            self.button_font = Font(family="Segoe UI Semibold", size=10, weight="bold")  
 
         self.fonts_dict = {
             'default': self.default_font,
             'heading': self.heading_font,
             'large_heading': self.large_heading_font,
-            'button': self.button_font 
+            'button': self.button_font  
+        }
+
+        # Store color palette hex values directly in instance for easy access by tk.widgets
+        self.color_text_color = '#F7F8FF'
+        self.color_bg_color = '#162B4A'
+        self.color_accent_color = '#006EE5'
+        self.color_entry_field_bg = '#D7E5FF'
+        self.color_entry_text_color = self.color_bg_color
+        self.color_button_text_color = '#FFFFFF' # Consolidated white text for all buttons
+        self.color_disabled_color_fg = '#BDC3C7'
+        self.color_hover_color = '#004CAF'
+        
+        self.exit_red_hover = '#FF0000'  
+        self.exit_yellow_hover = '#FFD700'  
+        self.exit_white_text = '#FFFFFF' # This variable can still be used locally for clarity for specific 'white' uses
+        self.exit_dark_text_on_yellow = self.color_bg_color  
+
+        # Consolidated colors dict for CustomFilenameDialog
+        self.colors_dict = {
+            'text_color': self.color_text_color,
+            'bg_color': self.color_bg_color,
+            'accent_color': self.color_accent_color,
+            'entry_field_bg': self.color_entry_field_bg,
+            'entry_text_color': self.color_entry_text_color,
+            'button_text_color': self.color_button_text_color,
+            'disabled_color_fg': self.color_disabled_color_fg,
+            'hover_color': self.color_hover_color,
         }
 
         try:
             CustomTheme.apply(root, self.fonts_dict)
         except Exception as e:
-            print(f"Error applying theme: {e}") 
+            print(f"Error applying theme: {e}")  
         
         self.download_manager = DownloadManager()
-        self.create_widgets() 
+        self.create_widgets()  
         
-        self.update_interval = 500 
+        self.update_interval = 500  
         self.root.after(self.update_interval, self.update_download_status)
 
     def create_widgets(self):
-        """Creates all the UI elements (frames, labels, entries, buttons, treeview)."""
-
         header_frame = ttk.Frame(self.root, style='TFrame')
-        header_frame.pack(fill=tk.X, pady=(2, 2), padx=5) 
+        header_frame.pack(fill=tk.X, pady=(2, 2), padx=5)  
         
-        ttk.Label(header_frame, text="Advanced Download Manager - created by Nima-Ghaffari", 
+        ttk.Label(header_frame, text="Advanced Download Manager - created by Nima-Ghaffari",  
                   font=self.large_heading_font, anchor=tk.CENTER).pack(fill=tk.X)
 
-        main_content_frame = ttk.Frame(self.root, style='TFrame', padding=2) 
-        main_content_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=2) 
-        main_content_frame.grid_columnconfigure(0, weight=1) 
-        main_content_frame.grid_rowconfigure(3, weight=1) 
+        main_content_frame = ttk.Frame(self.root, style='TFrame', padding=2)  
+        main_content_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=2)  
+        main_content_frame.grid_columnconfigure(0, weight=1)  
+        main_content_frame.grid_rowconfigure(3, weight=1)  
 
-        ttk.Label(main_content_frame, text="URL Input", font=self.heading_font, anchor=tk.W, style='DownloadsHeading.TLabel').grid(row=0, column=0, sticky='w', padx=5, pady=(2,0)) 
+        ttk.Label(main_content_frame, text="URL Input", font=self.heading_font, anchor=tk.W, style='DownloadsHeading.TLabel').grid(row=0, column=0, sticky='w', padx=5, pady=(2,0))  
 
-        input_container_frame = ttk.Frame(main_content_frame, style='TFrame', padding=5, relief='solid', borderwidth=1) 
-        input_container_frame.grid(row=1, column=0, sticky='nsew', pady=(0,2)) 
+        input_container_frame = ttk.Frame(main_content_frame, style='TFrame', padding=5, relief='solid', borderwidth=1)  
+        input_container_frame.grid(row=1, column=0, sticky='nsew', pady=(0,2))  
         input_container_frame.grid_columnconfigure(0, weight=1)
 
-        save_path_frame = ttk.Frame(input_container_frame, style='TFrame') 
-        save_path_frame.pack(fill=tk.X, pady=(0,2)) 
+        save_path_frame = ttk.Frame(input_container_frame, style='TFrame')  
+        save_path_frame.pack(fill=tk.X, pady=(0,2))  
         save_path_frame.grid_columnconfigure(1, weight=1)
 
-        ttk.Label(save_path_frame, text="Save to:", font=self.default_font).pack(side=tk.LEFT, padx=(0,2)) 
+        ttk.Label(save_path_frame, text="Save to:", font=self.default_font).pack(side=tk.LEFT, padx=(0,2))  
         self.save_path_var = tk.StringVar(value=os.path.expanduser("~/Downloads"))
-        self.path_entry = ttk.Entry(save_path_frame, textvariable=self.save_path_var, font=self.default_font) 
-        self.path_entry.pack(side=tk.LEFT, expand=True, fill=tk.X, padx=(0,2)) 
+        self.path_entry = ttk.Entry(save_path_frame, textvariable=self.save_path_var, font=self.default_font)  
+        self.path_entry.pack(side=tk.LEFT, expand=True, fill=tk.X, padx=(0,2))  
         ttk.Button(save_path_frame, text="Browse", command=self.browse_path, width=8).pack(side=tk.LEFT)
 
-        ttk.Label(input_container_frame, text="Enter URLs (one per line):", font=self.default_font).pack(anchor=tk.W, pady=(2,2)) 
+        ttk.Label(input_container_frame, text="Enter URLs (one per line):", font=self.default_font).pack(anchor=tk.W, pady=(2,2))  
         self.url_text = scrolledtext.ScrolledText(input_container_frame, height=6, wrap=tk.WORD, font=self.default_font, undo=True)
-        self.url_text.pack(fill=tk.BOTH, expand=True, pady=(0, 2)) 
+        self.url_text.pack(fill=tk.BOTH, expand=True, pady=(0, 2))  
 
-        input_buttons_frame = ttk.Frame(input_container_frame, style='TFrame') 
-        input_buttons_frame.pack(fill=tk.X, pady=(0,2), anchor=tk.W) 
+        input_buttons_frame = ttk.Frame(input_container_frame, style='TFrame')  
+        input_buttons_frame.pack(fill=tk.X, pady=(0,2), anchor=tk.W)  
         
-        fixed_button_width = 15 
+        fixed_button_width = 15  
 
-        self.add_btn = ttk.Button(input_buttons_frame, text="Add URLs", command=self.add_urls, width=fixed_button_width) 
-        self.add_btn.pack(side=tk.LEFT, padx=(0,1)) 
+        self.add_btn = ttk.Button(input_buttons_frame, text="Add URLs", command=self.add_urls, width=fixed_button_width)  
+        self.add_btn.pack(side=tk.LEFT, padx=(0,1))  
         
-        ttk.Button(input_buttons_frame, text="Set Names", command=self.set_filenames, width=fixed_button_width).pack(side=tk.LEFT, padx=(0,1)) 
-        ttk.Button(input_buttons_frame, text="Reset Names", command=self.reset_filenames, width=fixed_button_width).pack(side=tk.LEFT, padx=(0,1)) 
+        ttk.Button(input_buttons_frame, text="Set Names", command=self.set_filenames, width=fixed_button_width).pack(side=tk.LEFT, padx=(0,1))  
+        ttk.Button(input_buttons_frame, text="Reset Names", command=self.reset_filenames, width=fixed_button_width).pack(side=tk.LEFT, padx=(0,1))  
 
-        ttk.Label(main_content_frame, text="Downloads", font=self.heading_font, anchor=tk.W, style='DownloadsHeading.TLabel').grid(row=2, column=0, sticky='w', padx=5, pady=(2,0)) 
+        # --- Moved Subfolder Option (tk.Checkbutton instead of ttk.Checkbutton) ---
+        # Instead of 'subfolder_frame', we'll integrate directly into input_buttons_frame
+        
+        # Calculate approximate width needed for "Save custom folder:" and its entry
+        # A bit of a heuristic for width, based on standard button width and entry width
+        approx_subfolder_controls_width = fixed_button_width * 1.5 # Adjusted for checkbox and entry
+        
+        self.use_subfolder_var = tk.IntVar(value=0)
+        self.subfolder_var = tk.StringVar(value="")
 
-        downloads_list_container_frame = ttk.Frame(main_content_frame, style='TFrame', padding=5, relief='solid', borderwidth=1) 
-        downloads_list_container_frame.grid(row=3, column=0, sticky='nsew', pady=(0,5)) 
+        self.subfolder_checkbox = tk.Checkbutton(
+            input_buttons_frame, # Parent is now input_buttons_frame
+            text="Save custom folder:",  
+            variable=self.use_subfolder_var,
+            command=self.toggle_subfolder_entry,
+            font=self.default_font,  
+            bg=self.color_bg_color,
+            fg=self.color_text_color,
+            selectcolor=self.color_bg_color,
+            activebackground=self.color_bg_color,
+            activeforeground=self.color_text_color,
+            highlightbackground=self.color_bg_color,
+            highlightcolor=self.color_bg_color,
+            borderwidth=0,
+            indicatoron=True
+        )
+        self.subfolder_checkbox.pack(side=tk.LEFT, padx=(5, 5)) # Adjusted padding
+
+        self.subfolder_entry = ttk.Entry(
+            input_buttons_frame, # Parent is now input_buttons_frame
+            textvariable=self.subfolder_var,
+            font=self.default_font,
+            state=tk.DISABLED,
+            width=20 # Reduced width to fit
+        )
+        self.subfolder_entry.pack(side=tk.LEFT, expand=False, fill=tk.X, padx=(0,2))  # Removed expand and changed fill to False
+        
+        self.confirm_subfolder_btn = ttk.Button(
+            input_buttons_frame, # Parent is now input_buttons_frame
+            text="Confirm",
+            command=self.confirm_subfolder_selection,
+            state=tk.DISABLED,  
+            width=8 # Maintain consistent small button width
+        )
+        self.confirm_subfolder_btn.pack(side=tk.LEFT, padx=(0,0))  
+
+        # --- End of Moved Subfolder Option ---
+
+        ttk.Label(main_content_frame, text="Downloads", font=self.heading_font, anchor=tk.W, style='DownloadsHeading.TLabel').grid(row=2, column=0, sticky='w', padx=5, pady=(2,0))  
+
+        downloads_list_container_frame = ttk.Frame(main_content_frame, style='TFrame', padding=5, relief='solid', borderwidth=1)  
+        downloads_list_container_frame.grid(row=3, column=0, sticky='nsew', pady=(0,5))  
         downloads_list_container_frame.grid_rowconfigure(0, weight=1)
         downloads_list_container_frame.grid_columnconfigure(0, weight=1)
         
-        self.tree = ttk.Treeview(downloads_list_container_frame, columns=('filename', 'size', 'progress', 'status'), show='headings') 
+        self.tree = ttk.Treeview(downloads_list_container_frame, columns=('filename', 'size', 'progress', 'status'), show='headings')  
         
-        self.tree.heading('filename', text='Filename') 
+        self.tree.heading('filename', text='Filename')  
         self.tree.heading('size', text='Size')
-        self.tree.heading('progress', text='Progress / Speed') 
+        self.tree.heading('progress', text='Progress / Speed')  
         self.tree.heading('status', text='Status')
         
-        self.tree.column('filename', width=280, anchor=tk.W) 
-        self.tree.column('size', width=90, anchor=tk.E) 
-        self.tree.column('progress', width=120, anchor=tk.E) 
-        self.tree.column('status', width=100, anchor=tk.W) 
+        self.tree.column('filename', width=280, anchor=tk.W)  
+        self.tree.column('size', width=90, anchor=tk.E)  
+        self.tree.column('progress', width=120, anchor=tk.E)  
+        self.tree.column('status', width=100, anchor=tk.W)  
         
         y_scroll = ttk.Scrollbar(downloads_list_container_frame, orient='vertical', command=self.tree.yview)
         x_scroll = ttk.Scrollbar(downloads_list_container_frame, orient='horizontal', command=self.tree.xview)
@@ -462,106 +606,139 @@ class DownloaderApp:
         y_scroll.grid(row=0, column=1, sticky='ns')
         x_scroll.grid(row=1, column=0, sticky='ew')
 
-        left_control_buttons_frame = ttk.Frame(self.root, style='TFrame', padding=(2, 2)) 
-        left_control_buttons_frame.pack(side=tk.LEFT, anchor=tk.SW, padx=5, pady=(2, 5)) 
+        left_control_buttons_frame = ttk.Frame(self.root, style='TFrame', padding=(2, 2))  
+        left_control_buttons_frame.pack(side=tk.LEFT, anchor=tk.SW, padx=5, pady=(2, 5))  
 
-        self.start_btn = ttk.Button(left_control_buttons_frame, text="Start All", command=self.start_downloads, width=fixed_button_width) 
-        self.start_btn.pack(side=tk.LEFT, padx=(0,1)) 
+        self.start_btn = ttk.Button(left_control_buttons_frame, text="Start All", command=self.start_downloads, width=fixed_button_width)  
+        self.start_btn.pack(side=tk.LEFT, padx=(0,1))  
         
-        self.pause_btn = ttk.Button(left_control_buttons_frame, text="Pause / Resume", command=self.pause_toggle, state=tk.DISABLED, width=fixed_button_width) 
-        self.pause_btn.pack(side=tk.LEFT, padx=(0,1)) 
+        self.pause_btn = ttk.Button(left_control_buttons_frame, text="Pause / Resume", command=self.pause_toggle, state=tk.DISABLED, width=fixed_button_width)  
+        self.pause_btn.pack(side=tk.LEFT, padx=(0,1))  
         
-        self.stop_btn = ttk.Button(left_control_buttons_frame, text="Stop All", command=self.stop_downloads, width=fixed_button_width) 
-        self.stop_btn.pack(side=tk.LEFT, padx=(0,1)) 
+        self.stop_btn = ttk.Button(left_control_buttons_frame, text="Stop All", command=self.stop_downloads, width=fixed_button_width)  
+        self.stop_btn.pack(side=tk.LEFT, padx=(0,1))  
 
-        self.another_btn = ttk.Button(left_control_buttons_frame, text="Another", command=self.clear_all_content, width=fixed_button_width) 
-        self.another_btn.pack(side=tk.LEFT, padx=(0,1)) 
+        self.another_btn = ttk.Button(left_control_buttons_frame, text="Another", command=self.clear_all_content, width=fixed_button_width)  
+        self.another_btn.pack(side=tk.LEFT, padx=(0,1))  
 
-        right_control_buttons_frame = ttk.Frame(self.root, style='TFrame', padding=(2, 2)) 
-        right_control_buttons_frame.pack(side=tk.RIGHT, anchor=tk.SE, padx=5, pady=(2, 5)) 
+        right_control_buttons_frame = ttk.Frame(self.root, style='TFrame', padding=(2, 2))  
+        right_control_buttons_frame.pack(side=tk.RIGHT, anchor=tk.SE, padx=5, pady=(2, 5))  
 
-        style_obj = ttk.Style()
-        default_button_bg = style_obj.lookup('TButton', 'background')
-        default_button_fg = style_obj.lookup('TButton', 'foreground') 
-        default_button_active_bg = style_obj.lookup('TButton', 'background', ['active'])
-        default_button_active_fg = style_obj.lookup('TButton', 'foreground', ['active']) 
-
-        self.exit_btn = tk.Button(right_control_buttons_frame, text="Exit", 
-                                   font=self.fonts_dict['button'], 
-                                   width=fixed_button_width, 
-                                   bg=default_button_bg, 
-                                   fg=default_button_fg, 
+        self.exit_btn = tk.Button(right_control_buttons_frame, text="Exit",  
+                                   font=self.fonts_dict['button'],  
+                                   width=fixed_button_width,  
+                                   bg=self.color_accent_color,  
+                                   fg=self.color_button_text_color,
                                    relief=tk.FLAT, borderwidth=0, padx=10, pady=5,
-                                   activebackground=default_button_active_bg, 
-                                   activeforeground=default_button_active_fg) 
+                                   activebackground=self.color_hover_color,  
+                                   activeforeground=self.color_button_text_color)
+
         self.exit_btn.pack(side=tk.RIGHT)
         
-        self.exit_default_bg_color = default_button_bg
-        self.exit_default_fg_color = default_button_fg
-        self.exit_default_active_bg = default_button_active_bg
-        self.exit_default_active_fg = default_button_active_fg
+        self.exit_default_bg_color = self.color_accent_color
+        self.exit_default_fg_color = self.color_button_text_color
+        self.exit_default_active_bg = self.color_hover_color  
+        self.exit_default_active_fg = self.color_button_text_color
         
-        self.exit_red_hover = '#FF0000' 
-        self.exit_yellow_hover = '#FFD700' 
-        self.exit_white_text = '#FFFFFF' 
-        self.exit_dark_text_on_yellow = style_obj.lookup('TFrame', 'background') 
+        self.exit_red_hover = '#FF0000'  
+        self.exit_yellow_hover = '#FFD700'  
+        self.exit_white_text = '#FFFFFF'
+        self.exit_dark_text_on_yellow = self.color_bg_color  
 
         self.exit_btn.bind("<Enter>", self.on_exit_button_hover)
         self.exit_btn.bind("<Leave>", self.on_exit_button_leave)
-        self.exit_btn.bind("<Button-1>", self.on_exit_button_click) 
+        self.exit_btn.bind("<Button-1>", self.on_exit_button_click)  
 
         self.status_var = tk.StringVar()
-        self.status_var.set("Ready") 
-        ttk.Label(self.root, textvariable=self.status_var, style='TStatus.TLabel').pack(fill=tk.X, pady=(0,0), padx=5) 
+        self.status_var.set("Ready")  
+        ttk.Label(self.root, textvariable=self.status_var, style='TStatus.TLabel').pack(fill=tk.X, pady=(0,0), padx=5)  
+
+    def toggle_subfolder_entry(self):
+        if self.use_subfolder_var.get() == 1:
+            self.subfolder_entry.config(state=tk.NORMAL)
+            self.confirm_subfolder_btn.config(state=tk.NORMAL)  
+        else:
+            self.subfolder_entry.config(state=tk.DISABLED)
+            self.confirm_subfolder_btn.config(state=tk.DISABLED)  
+            self.subfolder_var.set("")  
+            self.subfolder_entry.config(style='TEntry')  
+
+    def confirm_subfolder_selection(self):
+        if self.use_subfolder_var.get() == 1:
+            subfolder_name = self.subfolder_var.get().strip()
+            if not subfolder_name:
+                messagebox.showwarning("Warning", "Please enter a name for the custom subfolder before confirming.", parent=self.root)
+                self.subfolder_entry.config(style='TEntry.Error')  
+                self.root.after(1000, lambda: self.subfolder_entry.config(style='TEntry'))  
+                return
+
+            sanitized_name = "".join(c for c in subfolder_name if c.isalnum() or c in (' ', '.', '_', '-')).strip()
+            if not sanitized_name:
+                messagebox.showwarning("Warning", "Invalid subfolder name. Please use alphanumeric characters, spaces, dots, underscores, or hyphens.", parent=self.root)
+                self.subfolder_entry.config(style='TEntry.Error')
+                self.root.after(1000, lambda: self.subfolder_entry.config(style='TEntry'))
+                return
+            
+            self.subfolder_entry.config(style='TEntry.Success')  
+            self.status_var.set(f"Subfolder '{sanitized_name}' confirmed.")
+            self.root.after(1500, lambda: self.subfolder_entry.config(style='TEntry'))  
+            self.subfolder_var.set(sanitized_name)  
+        else:  
+            self.status_var.set("Subfolder option not selected.")
+
 
     def on_exit_button_hover(self, event):
         if self.download_manager.active_downloads:
-            self.exit_btn.config(bg=self.exit_red_hover, fg=self.exit_white_text, 
+            self.exit_btn.config(bg=self.exit_red_hover, fg=self.exit_white_text,  
                                  activebackground=self.exit_red_hover, activeforeground=self.exit_white_text)
         elif not self.download_manager.download_queue.empty():
-            self.exit_btn.config(bg=self.exit_yellow_hover, fg=self.exit_dark_text_on_yellow, 
+            self.exit_btn.config(bg=self.exit_yellow_hover, fg=self.exit_dark_text_on_yellow,  
                                  activebackground=self.exit_yellow_hover, activeforeground=self.exit_dark_text_on_yellow)
         else:
-            self.exit_btn.config(bg=self.exit_default_active_bg, fg=self.exit_default_active_fg, 
+            self.exit_btn.config(bg=self.exit_default_active_bg, fg=self.exit_default_active_fg,  
                                  activebackground=self.exit_default_active_bg, activeforeground=self.exit_default_active_fg)
 
     def on_exit_button_leave(self, event):
-        self.exit_btn.config(bg=self.exit_default_bg_color, fg=self.exit_default_fg_color, 
+        self.exit_btn.config(bg=self.exit_default_bg_color, fg=self.exit_default_fg_color,  
                              activebackground=self.exit_default_active_bg, activeforeground=self.exit_default_active_fg)
 
 
     def on_exit_button_click(self, event):
         if self.download_manager.active_downloads:
-            response = messagebox.askyesno("Confirm Exit", 
+            response = messagebox.askyesno("Confirm Exit",  
                                            "Downloads are in progress. Do you want to stop all downloads and exit?",
                                            parent=self.root, icon='warning')
             if response:
                 self.download_manager.stop_all_downloads()
-                self.root.quit() 
+                self.root.quit()  
         elif not self.download_manager.download_queue.empty():
-            response = messagebox.askyesno("Confirm Exit", 
+            response = messagebox.askyesno("Confirm Exit",  
                                            "There are pending downloads in the queue. Do you want to clear the queue and exit?",
                                            parent=self.root, icon='question')
             if response:
-                self.download_manager.stop_all_downloads() 
-                self.download_manager.download_queue = Queue() 
+                self.download_manager.stop_all_downloads()  
+                self.download_manager.download_queue = Queue()  
                 self.root.quit()
         else:
             self.root.quit()
 
     def set_filenames(self):
-        choice = messagebox.askquestion("Filename Options", 
+        choice = messagebox.askquestion("Filename Options",  
                                         "Do you want to set names for all files as a batch or individually?",
                                         detail="Click 'Yes' for batch naming, 'No' for individual names.",
                                         icon='question', parent=self.root)
         
         if choice == 'yes':
-            base_name = simpledialog.askstring("Batch Naming", 
-                                              "Enter base filename (numbers will be added automatically, e.g., 'My_File_001'):",
-                                              parent=self.root)
+            # Use CustomFilenameDialog for batch naming
+            dialog = CustomFilenameDialog(self.root, "Batch Naming", 
+                                          "Enter name file", # Changed prompt text
+                                          "", # Initial value
+                                          self.fonts_dict, self.colors_dict)
+            base_name = dialog.result
+            
             if base_name:
                 self.download_manager.set_batch_filename(base_name)
-                self.update_treeview_filenames() 
+                self.update_treeview_filenames()  
         else:
             self.edit_filenames()
 
@@ -579,25 +756,26 @@ class DownloaderApp:
             if not default_name.lower().endswith(ext) and '.' not in default_name:
                 default_name += ext
 
-            new_name = simpledialog.askstring(
-                "Edit Filename",
-                f"New name for:\n{url}",
-                initialvalue=default_name,
-                parent=self.root
-            )
+            # Use CustomFilenameDialog for individual naming
+            dialog = CustomFilenameDialog(self.root, "Edit Filename",
+                                          f"Enter name file for:\n{url}", # Changed prompt text
+                                          default_name,
+                                          self.fonts_dict, self.colors_dict)
+            new_name = dialog.result
+
             if new_name:
-                if '.' not in new_name: 
+                if '.' not in new_name:  
                     new_name += self.download_manager.get_proper_extension(url)
                 self.download_manager.set_custom_filename(url, new_name)
         
-        self.update_treeview_filenames() 
+        self.update_treeview_filenames()  
 
     def reset_filenames(self):
         self.download_manager.custom_filenames = {}
         self.download_manager.batch_filename = None
         self.download_manager.file_counter = 1
         messagebox.showinfo("Reset", "Filenames reset to default (derived from URL).", parent=self.root)
-        self.update_treeview_filenames() 
+        self.update_treeview_filenames()  
 
     def update_treeview_filenames(self):
         for item in self.tree.get_children():
@@ -606,7 +784,7 @@ class DownloaderApp:
         urls_text = self.url_text.get("1.0", tk.END).strip()
         urls = [url.strip() for url in urls_text.split('\n') if url.strip()]
 
-        temp_file_counter = 1 
+        temp_file_counter = 1  
 
         for url in urls:
             filename_to_display = ""
@@ -622,7 +800,7 @@ class DownloaderApp:
                 if not filename_to_display.lower().endswith(ext) and '.' not in filename_to_display:
                     filename_to_display += ext
                     
-            self.tree.insert('', 'end', values=(filename_to_display, '', '0%', 'Ready')) 
+            self.tree.insert('', 'end', values=(filename_to_display, '', '0%', 'Ready'))  
 
     def browse_path(self):
         path = filedialog.askdirectory(parent=self.root)
@@ -636,24 +814,43 @@ class DownloaderApp:
             return
             
         urls = [url.strip() for url in urls_text.split('\n') if url.strip()]
-        save_path = self.save_path_var.get()
+        base_save_path = self.save_path_var.get()
         
-        if not os.path.exists(save_path):
+        final_save_path = base_save_path
+
+        if self.use_subfolder_var.get() == 1:  
+            subfolder_name = self.subfolder_var.get().strip()
+            if not subfolder_name:  
+                messagebox.showwarning("Warning", "Please enter a name for the custom subfolder.", parent=self.root)
+                self.subfolder_entry.config(style='TEntry.Error')
+                self.root.after(1000, lambda: self.subfolder_entry.config(style='TEntry'))
+                return
+            
+            sanitized_name = "".join(c for c in subfolder_name if c.isalnum() or c in (' ', '.', '_', '-')).strip()
+            if not sanitized_name:
+                    messagebox.showwarning("Warning", "Invalid subfolder name. Please use alphanumeric characters, spaces, dots, underscores, or hyphens.", parent=self.root)
+                    self.subfolder_entry.config(style='TEntry.Error')
+                    self.root.after(1000, lambda: self.subfolder_entry.config(style='TEntry'))
+                    return
+            
+            final_save_path = os.path.join(base_save_path, sanitized_name)  
+        
+        if not os.path.exists(final_save_path):
             try:
-                os.makedirs(save_path)
+                os.makedirs(final_save_path, exist_ok=True)
             except OSError as e:
                 messagebox.showerror("Error", f"Could not create save directory: {e}", parent=self.root)
                 return
         
-        for item in list(self.tree.get_children()): 
+        for item in list(self.tree.get_children()):  
             self.tree.delete(item)
 
-        self.download_manager.add_to_queue(urls, save_path)
+        self.download_manager.add_to_queue(urls, final_save_path)  
         
         self.update_treeview_filenames()
         
-        self.url_text.delete("1.0", tk.END) 
-        self.status_var.set(f"Added {len(urls)} URLs to queue.") 
+        self.url_text.delete("1.0", tk.END)  
+        self.status_var.set(f"Added {len(urls)} URLs to queue.")  
 
     def start_downloads(self):
         if self.download_manager.download_queue.empty() and not self.download_manager.active_downloads:
@@ -661,18 +858,22 @@ class DownloaderApp:
             return
             
         self.start_btn.config(state=tk.DISABLED)
-        self.pause_btn.config(state=tk.NORMAL, text="Pause / Resume") 
+        self.pause_btn.config(state=tk.NORMAL, text="Pause / Resume")  
         self.stop_btn.config(state=tk.NORMAL)
-        self.add_btn.config(state=tk.DISABLED) 
-        self.another_btn.config(state=tk.DISABLED) 
+        self.add_btn.config(state=tk.DISABLED)  
+        self.another_btn.config(state=tk.DISABLED)  
+        self.confirm_subfolder_btn.config(state=tk.DISABLED)  
+        self.subfolder_checkbox.config(state=tk.DISABLED)  
+        self.subfolder_entry.config(state=tk.DISABLED)  
+        
         if self.download_manager.active_downloads or not self.download_manager.download_queue.empty():
-            self.exit_btn.config(state=tk.DISABLED) 
+            self.exit_btn.config(state=tk.DISABLED)  
         
         if self.download_manager.batch_filename:
             self.download_manager.file_counter = 1
 
         Thread(target=self.download_manager.start_downloads, daemon=True).start()
-        self.status_var.set("Downloading...") 
+        self.status_var.set("Downloading...")  
 
     def pause_toggle(self):
         if self.download_manager.pause_flag:
@@ -681,28 +882,35 @@ class DownloaderApp:
             self.status_var.set("Downloading...")
         else:
             self.download_manager.pause_downloads()
-            self.pause_btn.config(text="Resume") 
-            self.status_var.set("Paused") 
+            self.pause_btn.config(text="Resume")  
+            self.status_var.set("Paused")  
 
     def stop_downloads(self):
         self.download_manager.stop_all_downloads()
-        self.status_var.set("Stopping downloads...") 
+        self.status_var.set("Stopping downloads...")  
         self.start_btn.config(state=tk.NORMAL)
         self.pause_btn.config(state=tk.DISABLED, text="Pause / Resume")
         self.stop_btn.config(state=tk.DISABLED)
         self.add_btn.config(state=tk.NORMAL)
-        self.another_btn.config(state=tk.NORMAL) 
-        self.exit_btn.config(state=tk.NORMAL) 
+        self.another_btn.config(state=tk.NORMAL)  
+        self.exit_btn.config(state=tk.NORMAL)  
+        
+        if not self.download_manager.active_downloads and self.download_manager.download_queue.empty():
+            self.subfolder_checkbox.config(state=tk.NORMAL)
+            if self.use_subfolder_var.get() == 1:  
+                self.subfolder_entry.config(state=tk.NORMAL)
+                self.confirm_subfolder_btn.config(state=tk.NORMAL)
+
 
     def clear_all_content(self):
         self.download_manager.stop_all_downloads()
-        time.sleep(0.1) 
+        time.sleep(0.1)  
         
         self.url_text.delete("1.0", tk.END)
 
         self.tree.delete(*self.tree.get_children())
 
-        self.download_manager = DownloadManager() 
+        self.download_manager = DownloadManager()  
 
         self.status_var.set("Ready for new downloads.")
 
@@ -710,12 +918,18 @@ class DownloaderApp:
         self.pause_btn.config(state=tk.DISABLED, text="Pause / Resume")
         self.stop_btn.config(state=tk.DISABLED)
         self.add_btn.config(state=tk.NORMAL)
-        self.another_btn.config(state=tk.NORMAL) 
-        self.exit_btn.config(state=tk.NORMAL) 
+        self.another_btn.config(state=tk.NORMAL)  
+        self.exit_btn.config(state=tk.NORMAL)  
+
+        self.subfolder_checkbox.config(state=tk.NORMAL)
+        self.subfolder_entry.config(state=tk.DISABLED)  
+        self.confirm_subfolder_btn.config(state=tk.DISABLED)  
+        self.use_subfolder_var.set(0)  
+        self.subfolder_var.set("")  
 
 
     def update_download_status(self):
-        if not all([self.start_btn, self.pause_btn, self.stop_btn, self.add_btn, self.another_btn, self.exit_btn, self.tree]):
+        if not all([self.start_btn, self.pause_btn, self.stop_btn, self.add_btn, self.another_btn, self.exit_btn, self.tree, self.subfolder_checkbox, self.subfolder_entry, self.confirm_subfolder_btn]):  
             self.root.after(self.update_interval, self.update_download_status)
             return
 
@@ -733,37 +947,37 @@ class DownloaderApp:
                 info = self.download_manager.active_downloads[matched_url]
                 
                 display_size = ""
-                display_progress_speed = "" 
+                display_progress_speed = ""  
                 status_text = ""
 
-                if info['size'] > 0: 
+                if info['size'] > 0:  
                     display_size = self.download_manager.format_size(info['size'])
                     display_progress_speed = f"{info['progress']:.1f}% ({self.download_manager.format_speed(info['speed'])})"
                     status_text = "Downloading" if not self.download_manager.pause_flag else "Paused"
-                else: 
+                else:  
                     display_size = f"{self.download_manager.format_size(info['downloaded_bytes'])} / Unknown"
                     display_progress_speed = f"N/A ({self.download_manager.format_speed(info['speed'])})"
                     status_text = "Downloading" if not self.download_manager.pause_flag else "Paused"
 
                 self.tree.item(item_id, values=(
-                    info['filename'], 
+                    info['filename'],  
                     display_size,
-                    display_progress_speed, 
+                    display_progress_speed,  
                     status_text
                 ))
-                 
+                
         while self.download_manager.completed_downloads:
             info = self.download_manager.completed_downloads.pop(0)
-            completed_size_display = self.download_manager.format_size(info['size']) 
+            completed_size_display = self.download_manager.format_size(info['size'])  
             
             for item_id in self.tree.get_children():
                 values = self.tree.item(item_id, 'values')
-                if values and values[0] == info['filename'] and values[3] != "Completed": 
+                if values and values[0] == info['filename'] and values[3] != "Completed":  
                     self.tree.item(item_id, values=(
                         info['filename'],
-                        completed_size_display, 
+                        completed_size_display,  
                         "100%",
-                        "Completed" 
+                        "Completed"  
                     ))
                     break
                 
@@ -771,24 +985,30 @@ class DownloaderApp:
             info = self.download_manager.failed_downloads.pop(0)
             for item_id in self.tree.get_children():
                 values = self.tree.item(item_id, 'values')
-                if values and values[0] == info['filename'] and not values[3].startswith("Error"): 
+                if values and values[0] == info['filename'] and not values[3].startswith("Error"):  
                     self.tree.item(item_id, values=(
                         info['filename'],
-                        "", 
+                        "",  
                         "0%",
-                        f"Error: {info['error'][:30]}..." 
+                        f"Error: {info['error'][:30]}..."  
                     ))
                     break
         
         if not self.download_manager.active_downloads and self.download_manager.download_queue.empty():
             if self.status_var.get() not in ["Ready", "All downloads finished.", "Stopping downloads.", "Ready for new downloads."]:
-                self.status_var.set("All downloads finished.") 
+                self.status_var.set("All downloads finished.")  
             self.start_btn.config(state=tk.NORMAL)
             self.pause_btn.config(state=tk.DISABLED, text="Pause / Resume")
             self.stop_btn.config(state=tk.DISABLED)
             self.add_btn.config(state=tk.NORMAL)
-            self.another_btn.config(state=tk.NORMAL) 
-            self.exit_btn.config(state=tk.NORMAL) 
+            self.another_btn.config(state=tk.NORMAL)  
+            self.exit_btn.config(state=tk.NORMAL)  
+
+            self.subfolder_checkbox.config(state=tk.NORMAL)
+            if self.use_subfolder_var.get() == 1:  
+                self.subfolder_entry.config(state=tk.NORMAL)
+                self.confirm_subfolder_btn.config(state=tk.NORMAL)
+
         elif self.download_manager.pause_flag:
             self.status_var.set("Paused")
             self.pause_btn.config(text="Resume")
@@ -797,9 +1017,9 @@ class DownloaderApp:
             self.pause_btn.config(text="Pause / Resume")
         elif not self.download_manager.download_queue.empty():
             self.status_var.set("Queued, awaiting start...")
-            self.start_btn.config(state=tk.NORMAL) 
+            self.start_btn.config(state=tk.NORMAL)  
         
-        self.on_exit_button_leave(None) 
+        self.on_exit_button_leave(None)  
 
         self.root.after(self.update_interval, self.update_download_status)
 
